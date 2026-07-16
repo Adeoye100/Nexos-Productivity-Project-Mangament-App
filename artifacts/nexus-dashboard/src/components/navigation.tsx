@@ -47,13 +47,13 @@ export function Navigation() {
                       "flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300",
                       isActive
                         ? "glass-card neon-glow text-primary"
-                        : "text-muted-foreground hover:text-foreground hover:glass",
+                        : "text-muted-foreground hover:text-foreground hover:glass rounded-tl-[50px] rounded-tr-[50px] rounded-br-[50px] rounded-bl-[50px]"
                     )}
                   >
                     <Icon className="w-5 h-5" />
                     <span className="text-sm font-semibold tracking-wide hidden md:inline">{link.label}</span>
                   </Link>
-                )
+                );
               })}
 
               {/* Notification bell */}
@@ -77,8 +77,7 @@ export function Navigation() {
           </div>
         </div>
       </nav>
-
       <NotificationLog open={logOpen} onClose={() => setLogOpen(false)} />
     </>
-  )
+  );
 }
