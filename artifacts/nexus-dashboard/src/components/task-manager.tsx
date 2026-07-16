@@ -215,7 +215,7 @@ export function TaskManager() {
       {/* AI Suggestion */}
       {aiSuggestion && (
         <div className="mb-8 animate-slide-in-up delay-100">
-          <Card className="glass-card p-6 border-accent/30">
+          <Card className="glass-card p-6 border-accent/30 border-t-[0px] border-r-[0px] border-b-[0px] border-l-[0px]">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center flex-shrink-0 neon-glow-accent">
                 <Sparkles className="w-6 h-6 text-white" />
