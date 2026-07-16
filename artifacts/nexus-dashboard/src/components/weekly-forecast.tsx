@@ -100,7 +100,7 @@ export function WeeklyForecast() {
 
   if (loading) {
     return (
-      <Card className="glass-strong p-6 border-primary/20">
+      <Card className="glass-card p-6">
         <h2 className="text-xl font-bold mb-6 text-foreground">7-Day Forecast</h2>
         <div className="flex items-center justify-center py-8">
           <p className="text-muted-foreground">Loading forecast...</p>
@@ -110,7 +110,7 @@ export function WeeklyForecast() {
   }
 
   return (
-    <Card className="glass-strong p-6 border-primary/20">
+    <Card className="glass-card p-6">
       <h2 className="text-xl font-bold mb-6 text-foreground">7-Day Forecast</h2>
       <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
         {forecastData.map((day, index) => {
@@ -118,7 +118,7 @@ export function WeeklyForecast() {
           return (
             <div
               key={day.day}
-              className="flex flex-col items-center gap-3 p-4 rounded-lg bg-card/50 border border-border hover:border-primary/30 transition-all hover:bg-card/80 animate-slide-in-up"
+              className="flex flex-col items-center gap-3 p-4 rounded-xl bg-card/50 border border-border/60 hover:border-border transition-all hover:bg-card/80 animate-slide-in-up"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <span className="text-sm font-medium text-muted-foreground">{day.day}</span>

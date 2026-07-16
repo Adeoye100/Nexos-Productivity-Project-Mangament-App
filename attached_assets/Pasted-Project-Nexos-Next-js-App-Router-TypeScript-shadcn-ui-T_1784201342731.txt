@@ -1,0 +1,32 @@
+Project: Nexos (Next.js App Router, TypeScript, shadcn/ui, Tailwind, pnpm)
+
+Context: Existing codebase, both themes need this cleanup pass. The current UI has two specific problems to fix — do not do a broader redesign, stay scoped to exactly these changes.
+
+## Fix 1: Remove all text glow effects
+- Audit all headings (e.g. "Good Afternoon, [name]") for text-shadow or drop-shadow filters currently making text look smudged/glowing
+- Remove these entirely — text should render crisp with no shadow/glow, using only font-weight and color for emphasis
+- Check both light and dark theme for this — the effect currently appears in both
+
+## Fix 2: Remove glowing/square card borders, simplify to soft neutral cards
+- Audit all card/tile components (stat cards like Humidity, Wind Speed, Sunrise, Sunset, Visibility, Condition, and the 7-Day Forecast day tiles) for colored neon box-shadow borders (currently pink/purple glow rings in dark mode)
+- Remove the glow box-shadows entirely
+- Replace with either: (a) a single subtle neutral border (1px, low-opacity white/gray depending on theme) with no colored glow, or (b) no border at all, using a soft neutral drop-shadow purely for elevation (no color tint)
+- Standardize border-radius across all cards to match the already-correct rounded style used on the "7-Day Forecast" container — every card/tile in the app should share this same radius, no mixed square/rounded corners
+- This applies globally across all pages (Weather, Tasks, AI Assistant, Settings), not just the Weather page
+
+## Fix 3: Rebuild the navbar using this reference component
+
+[paste the full styled-components Card code the user uploaded here]
+
+Adapt this pattern to the current Next.js/Tailwind/shadcn stack (do not add styled-components as a new dependency — recreate the same visual effect using Tailwind's backdrop-blur, bg-opacity, and rounded-full utilities instead, to stay consistent with the rest of the codebase):
+- Single pill-shaped container with frosted-glass effect (backdrop-blur + semi-transparent background)
+- Nav items as icon-over-label stacked buttons inside the pill, not separate button chips like the current navbar
+- Active route gets a distinct highlighted state (background fill + accent color) matching the reference's `.active` class treatment
+- Preserve current nav items: Weather, Tasks, AI Assistant, Settings, notification bell, theme toggle
+- Keep the nav in its current position (top bar) — do not move it to a fixed bottom bar unless mobile viewport, where a bottom-fixed pill nav (as the reference implies with its commented-out fixed/bottom positioning) is more appropriate for thumb reach
+- Ensure the frosted-glass effect and active-state colors work correctly in both light and dark theme
+
+## Constraints
+- Do not change layout structure, spacing, or content — this is a visual cleanup + navbar swap only
+- Do not touch the AI Suggestion banner's purple/pink gradient styling — that one is working correctly and should stay
+- Verify fixes across Weather, Tasks, AI Assistant, and Settings pages before considering this complete

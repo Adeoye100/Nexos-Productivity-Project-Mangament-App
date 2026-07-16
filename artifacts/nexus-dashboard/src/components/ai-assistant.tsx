@@ -190,10 +190,10 @@ export function AIAssistant() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center neon-glow-accent">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-4xl font-bold neon-text">AI Assistant</h1>
+            <h1 className="text-4xl font-bold">AI Assistant</h1>
           </div>
           <p className="text-muted-foreground text-lg">
             Your intelligent companion — reads your tasks, takes action
@@ -230,7 +230,7 @@ export function AIAssistant() {
                 className={cn(
                   "max-w-[80%] rounded-2xl p-4 text-sm shadow-md backdrop-blur-sm",
                   message.role === "user"
-                    ? "bg-primary/90 text-primary-foreground rounded-br-sm neon-glow"
+                    ? "bg-primary/90 text-primary-foreground rounded-br-sm"
                     : "bg-card/80 border border-border text-foreground rounded-bl-sm",
                 )}
               >

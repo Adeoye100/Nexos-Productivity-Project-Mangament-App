@@ -202,7 +202,7 @@ export function TaskManager() {
       {/* Header */}
       <div className="mb-8 animate-slide-in-up flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-5xl font-bold mb-3 neon-text tracking-tight">Task Manager</h1>
+          <h1 className="text-5xl font-bold mb-3 tracking-tight">Task Manager</h1>
           <p className="text-muted-foreground text-xl">
             {completedCount} of {tasks.length} tasks completed
           </p>
@@ -224,11 +224,11 @@ export function TaskManager() {
         <div className="mb-8 animate-slide-in-up delay-100">
           <Card className="glass-card p-6 border-accent/30 border-t-[0px] border-r-[0px] border-b-[0px] border-l-[0px]">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center flex-shrink-0 neon-glow-accent">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center flex-shrink-0">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="font-bold mb-2 text-accent text-lg neon-text-accent">AI Suggestion</h3>
+                <h3 className="font-bold mb-2 text-accent text-lg">AI Suggestion</h3>
                 <p className="text-foreground leading-relaxed text-base">{aiSuggestion}</p>
               </div>
             </div>
@@ -250,7 +250,7 @@ export function TaskManager() {
               />
               <Button
                 onClick={handleAddTask}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 neon-glow rounded-xl font-semibold md:w-auto w-full"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl font-semibold md:w-auto w-full"
               >
                 <Plus className="w-5 h-5 mr-2" />
                 Add Task
@@ -309,8 +309,8 @@ export function TaskManager() {
           className={cn(
             "rounded-xl font-semibold transition-all duration-300",
             filterCategory === null
-              ? "bg-primary text-primary-foreground neon-glow"
-              : "glass border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/30",
+              ? "bg-primary text-primary-foreground"
+              : "glass border-border/50 text-muted-foreground hover:text-foreground hover:border-border",
           )}
         >
           All
@@ -323,7 +323,7 @@ export function TaskManager() {
             className={cn(
               "rounded-xl font-semibold transition-all duration-300",
               filterCategory === cat
-                ? "bg-primary text-primary-foreground neon-glow"
+                ? "bg-primary text-primary-foreground"
                 : "glass border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/30",
             )}
           >

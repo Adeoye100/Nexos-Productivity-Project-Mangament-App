@@ -186,14 +186,14 @@ export function WeatherDashboard() {
   }
 
   return (
-    <div className="relative min-h-screen pt-24 pb-12">
+    <div className="relative min-h-screen pt-24 pb-28 md:pb-12">
       <div className="container mx-auto px-4 relative z-10">
         <div
           className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 animate-slide-in-up"
         >
           {/* Greeting Section */}
           <div>
-            <h1 className="text-5xl font-bold mb-3 neon-text tracking-tight">
+            <h1 className="text-5xl font-bold mb-3 tracking-tight">
               {greeting}, {userName}
             </h1>
             {weather && (
@@ -231,13 +231,13 @@ export function WeatherDashboard() {
             {/* Main Weather Display */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
               {/* Temperature Card */}
-              <Card className="glass-card p-8 col-span-1 lg:col-span-2 border-primary/30">
+              <Card className="glass-card p-8 col-span-1 lg:col-span-2">
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-muted-foreground mb-3 text-sm uppercase tracking-wider">Current Temperature</p>
                     <div className="flex items-baseline gap-3">
                       <span
-                        className="text-8xl font-bold neon-text tracking-tight transition-all duration-300"
+                        className="text-8xl font-bold tracking-tight transition-all duration-300"
                       >
                         {convertTemp(weather.temp)}°
                       </span>
@@ -294,13 +294,13 @@ export function WeatherDashboard() {
 
             {/* AI Suggestion */}
             <div className="animate-slide-in-up delay-500">
-              <Card className="glass-card p-6 border-accent/30 mt-8">
+              <Card className="glass-card p-6 mt-8">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center flex-shrink-0 neon-glow-accent">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center flex-shrink-0">
                     <Sparkles className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-bold mb-2 text-accent text-lg neon-text-accent">AI Suggestion</h3>
+                    <h3 className="font-bold mb-2 text-accent text-lg">AI Suggestion</h3>
                     <p className="text-foreground leading-relaxed text-base">
                       Based on the humidity at {weather.humidity}%, today's a good day for outdoor activities. Consider
                       scheduling your morning run before 10 AM for optimal conditions.

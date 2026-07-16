@@ -171,32 +171,30 @@
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(25px) saturate(150%);
-  border: 1px solid;
-  border-image: linear-gradient(135deg, rgba(100, 200, 255, 0.25), rgba(200, 100, 255, 0.15)) 1;
-  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08), inset 0 1px 1px 0 rgba(255, 255, 255, 0.8);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06), 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
-  border-image: linear-gradient(135deg, rgba(100, 200, 255, 0.45), rgba(200, 100, 255, 0.35)) 1;
-  box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.12), inset 0 1px 2px 0 rgba(255, 255, 255, 0.9), 0 0 20px 0 rgba(100, 200, 255, 0.12);
-  transform: translateY(-2px);
+  border: 1px solid rgba(0, 0, 0, 0.11);
+  box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.09), 0 2px 6px 0 rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
 }
 
 .dark .glass-card {
-  background: rgba(20, 20, 35, 0.5);
+  background: rgba(20, 20, 35, 0.55);
   backdrop-filter: blur(25px) saturate(180%);
-  border: 1px solid;
-  border-image: linear-gradient(135deg, rgba(100, 200, 255, 0.3), rgba(200, 100, 255, 0.2)) 1;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 1px 1px 0 rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.3), 0 1px 4px 0 rgba(0, 0, 0, 0.15);
 }
 
 .dark .glass-card:hover {
-  border-image: linear-gradient(135deg, rgba(100, 200, 255, 0.5), rgba(200, 100, 255, 0.4)) 1;
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5), inset 0 1px 2px 0 rgba(255, 255, 255, 0.1), 0 0 30px 0 rgba(100, 200, 255, 0.2);
-  transform: translateY(-2px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), 0 2px 8px 0 rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
 }
 
 /* Neon glow effects — light mode is subtler, dark mode is full intensity */
@@ -217,19 +215,19 @@
 }
 
 .neon-text {
-  text-shadow: 0 0 8px rgba(100, 200, 255, 0.5), 0 0 16px rgba(100, 200, 255, 0.3);
+  text-shadow: none;
 }
 
 .dark .neon-text {
-  text-shadow: 0 0 10px rgba(100, 200, 255, 0.6), 0 0 20px rgba(100, 200, 255, 0.4), 0 0 30px rgba(100, 200, 255, 0.2);
+  text-shadow: none;
 }
 
 .neon-text-accent {
-  text-shadow: 0 0 8px rgba(200, 100, 255, 0.5), 0 0 16px rgba(200, 100, 255, 0.3);
+  text-shadow: none;
 }
 
 .dark .neon-text-accent {
-  text-shadow: 0 0 10px rgba(200, 100, 255, 0.6), 0 0 20px rgba(200, 100, 255, 0.4), 0 0 30px rgba(200, 100, 255, 0.2);
+  text-shadow: none;
 }
 
 /* Parallax container */

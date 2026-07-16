@@ -35,7 +35,7 @@ function TasksPage() {
     <main className="min-h-screen">
       <BackgroundManager />
       <Navigation />
-      <div className="pt-24 pb-12">
+      <div className="pt-24 pb-28 md:pb-12">
         <TaskManager />
       </div>
     </main>
@@ -46,7 +46,7 @@ function AssistantPage() {
   return (
     <main className="min-h-screen bg-background">
       <Navigation />
-      <div className="pt-20 pb-12">
+      <div className="pt-20 pb-28 md:pb-12">
         <AIAssistant />
       </div>
     </main>
@@ -57,7 +57,7 @@ function SettingsPage() {
   return (
     <main className="min-h-screen bg-background">
       <Navigation />
-      <div className="pt-20 pb-12">
+      <div className="pt-20 pb-28 md:pb-12">
         <SettingsPanel />
       </div>
     </main>

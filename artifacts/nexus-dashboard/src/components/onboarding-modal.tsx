@@ -61,7 +61,7 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
 
         {step === 1 ? (
           <>
-            <h2 className="text-2xl font-bold text-center mb-2 neon-text">Welcome to Nexus</h2>
+            <h2 className="text-2xl font-bold text-center mb-2">Welcome to Nexus</h2>
             <p className="text-muted-foreground text-center mb-6">
               Your next-generation weather and productivity dashboard
             </p>
@@ -94,7 +94,7 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
           </>
         ) : (
           <>
-            <h2 className="text-2xl font-bold text-center mb-2 neon-text">Nice to meet you, {name}!</h2>
+            <h2 className="text-2xl font-bold text-center mb-2">Nice to meet you, {name}!</h2>
             <p className="text-muted-foreground text-center mb-6">Where are you located?</p>
 
             <div className="space-y-4">
