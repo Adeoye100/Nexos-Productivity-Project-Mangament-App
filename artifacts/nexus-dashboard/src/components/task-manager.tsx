@@ -5,8 +5,15 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   Plus, Trash2, Edit2, Check, X, Download, Sparkles,
-  ArrowUp, ArrowRight, ArrowDown, Calendar, Bell, BellOff
+  ArrowUp, ArrowRight, ArrowDown, Calendar, Bell, BellOff, MoreVertical
 } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { useTasks } from "@/context/tasks-context"
 import { useNotifications } from "@/context/notifications-context"
@@ -370,157 +377,170 @@ export function TaskManager() {
             <div key={task.id} className="animate-slide-in-up">
               <Card
                 className={cn(
-                  "glass-card p-5 border-border/50 hover:border-primary/40 transition-colors duration-300",
-                  task.completed && "opacity-60 bg-background/20",
+                  "group glass-card border-border/50 hover:border-primary/40 transition-all duration-300 overflow-hidden",
+                  task.completed && "opacity-60",
                 )}
               >
-                <div className="flex items-center gap-4">
-                  {/* Checkbox */}
-                  <button
-                    onClick={() => handleToggleComplete(task)}
-                    className={cn(
-                      "w-6 h-6 rounded border-2 flex items-center justify-center transition-all flex-shrink-0",
-                      task.completed
-                        ? "bg-primary border-primary"
-                        : "border-muted-foreground hover:border-primary",
-                    )}
-                  >
-                    {task.completed && <Check className="w-4 h-4 text-primary-foreground" />}
-                  </button>
+                <div className="p-5">
+                  {/* Top row: checkbox + title + actions */}
+                  <div className="flex items-start gap-3">
+                    {/* Checkbox */}
+                    <button
+                      onClick={() => handleToggleComplete(task)}
+                      className={cn(
+                        "mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center transition-all flex-shrink-0",
+                        task.completed
+                          ? "bg-primary border-primary"
+                          : "border-muted-foreground hover:border-primary",
+                      )}
+                    >
+                      {task.completed && <Check className="w-3 h-3 text-primary-foreground" />}
+                    </button>
 
-                  {/* Task Content */}
-                  {editingId === task.id ? (
-                    <Input
-                      value={editText}
-                      onChange={e => setEditText(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === "Enter") saveEdit()
-                        if (e.key === "Escape") cancelEdit()
-                      }}
-                      className="flex-1 bg-background/50 border-border"
-                      autoFocus
-                    />
-                  ) : (
-                    <div className="flex-1 flex flex-col gap-1">
-                      <div className="flex flex-col md:flex-row md:items-center gap-2 justify-between">
-                        <p className={cn("text-foreground font-medium", task.completed && "line-through text-muted-foreground")}>
+                    {/* Title — visual anchor */}
+                    <div className="flex-1 min-w-0">
+                      {editingId === task.id ? (
+                        <Input
+                          value={editText}
+                          onChange={e => setEditText(e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === "Enter") saveEdit()
+                            if (e.key === "Escape") cancelEdit()
+                          }}
+                          className="bg-background/50 border-border"
+                          autoFocus
+                        />
+                      ) : (
+                        <p className={cn(
+                          "text-base font-semibold leading-snug text-foreground break-words",
+                          task.completed && "line-through text-muted-foreground"
+                        )}>
                           {task.title}
                         </p>
-                        <div className="flex flex-wrap items-center gap-2">
-                          {task.dueDate && (
-                            <span className={cn(
-                              "text-xs flex items-center gap-1",
-                              new Date(task.dueDate) < new Date() && !task.completed
-                                ? "text-destructive font-bold"
-                                : "text-muted-foreground"
-                            )}>
-                              <Calendar className="w-3 h-3" />
-                              {new Date(task.dueDate).toLocaleString()}
-                            </span>
-                          )}
-                          {task.reminderAt && !task.reminderNotified && (
-                            <span className="text-xs flex items-center gap-1 text-accent">
-                              <Bell className="w-3 h-3" />
-                              {new Date(task.reminderAt).toLocaleString()}
-                            </span>
-                          )}
-                          <span className={cn(
-                            "text-xs px-2 py-1 rounded-full border flex items-center gap-1",
-                            task.priority === "High"
-                              ? "border-red-500/50 text-red-400 bg-red-950/20"
-                              : task.priority === "Medium"
-                              ? "border-yellow-500/50 text-yellow-400 bg-yellow-950/20"
-                              : "border-blue-500/50 text-blue-400 bg-blue-950/20",
-                          )}>
-                            {task.priority === "High" && <ArrowUp className="w-3 h-3" />}
-                            {task.priority === "Medium" && <ArrowRight className="w-3 h-3" />}
-                            {task.priority === "Low" && <ArrowDown className="w-3 h-3" />}
-                            {task.priority}
-                          </span>
-                          <span className="text-xs text-muted-foreground bg-secondary/20 px-2 py-1 rounded-full border border-secondary/20">
-                            {task.category}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Inline reminder setter */}
-                      {settingReminderId === task.id && (
-                        <div className="flex items-center gap-2 mt-2 pl-0">
-                          <Input
-                            type="datetime-local"
-                            value={reminderInput}
-                            onChange={e => setReminderInput(e.target.value)}
-                            className="h-8 text-xs bg-background/50 border-accent/30 w-auto"
-                            autoFocus
-                          />
-                          <Button size="sm" onClick={() => saveReminder(task.id)} className="h-8 text-xs bg-accent hover:bg-accent/90">
-                            Set
-                          </Button>
-                          <Button size="sm" variant="ghost" onClick={() => setSettingReminderId(null)} className="h-8 text-xs">
-                            Cancel
-                          </Button>
-                        </div>
                       )}
                     </div>
-                  )}
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {/* Actions */}
                     {editingId === task.id ? (
-                      <>
-                        <Button size="sm" onClick={saveEdit} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                          <Check className="w-4 h-4" />
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <Button size="sm" onClick={saveEdit} className="bg-primary text-primary-foreground hover:bg-primary/90 h-7 px-2">
+                          <Check className="w-3.5 h-3.5" />
                         </Button>
-                        <Button size="sm" variant="outline" onClick={cancelEdit} className="border-border bg-transparent">
-                          <X className="w-4 h-4" />
+                        <Button size="sm" variant="outline" onClick={cancelEdit} className="border-border bg-transparent h-7 px-2">
+                          <X className="w-3.5 h-3.5" />
                         </Button>
-                      </>
+                      </div>
                     ) : (
                       <>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => {
-                            if (settingReminderId === task.id) {
-                              setSettingReminderId(null)
-                            } else {
-                              setSettingReminderId(task.id)
-                              setReminderInput(
-                                task.reminderAt
-                                  ? new Date(task.reminderAt).toISOString().slice(0, 16)
-                                  : ""
-                              )
-                            }
-                          }}
-                          className={cn(
-                            "text-muted-foreground hover:text-accent",
-                            task.reminderAt && !task.reminderNotified && "text-accent"
-                          )}
-                          title="Set reminder"
-                        >
-                          {task.reminderAt && !task.reminderNotified
-                            ? <Bell className="w-4 h-4" />
-                            : <BellOff className="w-4 h-4" />}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => startEdit(task)}
-                          className="text-muted-foreground hover:text-foreground"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => deleteTask(task.id)}
-                          className="text-muted-foreground hover:text-destructive"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        {/* Desktop: hover-reveal cluster */}
+                        <div className="hidden md:flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                          <Button
+                            size="sm" variant="ghost"
+                            onClick={() => {
+                              if (settingReminderId === task.id) {
+                                setSettingReminderId(null)
+                              } else {
+                                setSettingReminderId(task.id)
+                                setReminderInput(task.reminderAt ? new Date(task.reminderAt).toISOString().slice(0, 16) : "")
+                              }
+                            }}
+                            className={cn("h-7 w-7 p-0 text-muted-foreground hover:text-accent", task.reminderAt && !task.reminderNotified && "text-accent")}
+                            title="Set reminder"
+                          >
+                            {task.reminderAt && !task.reminderNotified ? <Bell className="w-3.5 h-3.5" /> : <BellOff className="w-3.5 h-3.5" />}
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => startEdit(task)} className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground" title="Edit">
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => deleteTask(task.id)} className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive" title="Delete">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+
+                        {/* Mobile: kebab dropdown */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="ghost" className="md:hidden h-7 w-7 p-0 text-muted-foreground flex-shrink-0">
+                              <MoreVertical className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="glass-strong border-primary/20 border-t-[0px] border-r-[0px] border-b-[0px] border-l-[0px]">
+                            <DropdownMenuItem onClick={() => {
+                              setSettingReminderId(settingReminderId === task.id ? null : task.id)
+                              setReminderInput(task.reminderAt ? new Date(task.reminderAt).toISOString().slice(0, 16) : "")
+                            }}>
+                              <Bell className="w-4 h-4 mr-2" /> Set Reminder
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => startEdit(task)}>
+                              <Edit2 className="w-4 h-4 mr-2" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => deleteTask(task.id)} className="text-destructive focus:text-destructive">
+                              <Trash2 className="w-4 h-4 mr-2" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </>
                     )}
                   </div>
+
+                  {/* Metadata row */}
+                  <div className="flex flex-wrap gap-2 mt-3 ml-8">
+                    {task.dueDate && (
+                      <Badge variant="outline" className={cn(
+                        "text-xs gap-1 font-normal h-6 px-2",
+                        new Date(task.dueDate) < new Date() && !task.completed
+                          ? "border-destructive/50 text-destructive bg-destructive/10"
+                          : "border-border text-muted-foreground"
+                      )}>
+                        <Calendar className="w-3 h-3" />
+                        {new Date(task.dueDate).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      </Badge>
+                    )}
+
+                    <Badge className={cn(
+                      "text-xs gap-1 font-medium h-6 px-2 border-0",
+                      task.priority === "High"
+                        ? "bg-red-500/15 text-red-600 dark:text-red-400"
+                        : task.priority === "Medium"
+                        ? "bg-orange-500/15 text-orange-600 dark:text-orange-400"
+                        : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+                    )}>
+                      {task.priority === "High" && <ArrowUp className="w-3 h-3" />}
+                      {task.priority === "Medium" && <ArrowRight className="w-3 h-3" />}
+                      {task.priority === "Low" && <ArrowDown className="w-3 h-3" />}
+                      {task.priority}
+                    </Badge>
+
+                    <Badge variant="secondary" className="text-xs font-normal h-6 px-2">
+                      {task.category}
+                    </Badge>
+
+                    {task.reminderAt && !task.reminderNotified && (
+                      <Badge variant="outline" className="text-xs gap-1 font-normal h-6 px-2 border-accent/40 text-accent bg-accent/5">
+                        <Bell className="w-3 h-3" />
+                        {new Date(task.reminderAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      </Badge>
+                    )}
+                  </div>
+
+                  {/* Inline reminder setter */}
+                  {settingReminderId === task.id && (
+                    <div className="flex items-center gap-2 mt-3 ml-8">
+                      <Input
+                        type="datetime-local"
+                        value={reminderInput}
+                        onChange={e => setReminderInput(e.target.value)}
+                        className="h-8 text-xs bg-background/50 border-accent/30 w-auto"
+                        autoFocus
+                      />
+                      <Button size="sm" onClick={() => saveReminder(task.id)} className="h-8 text-xs bg-accent hover:bg-accent/90">
+                        Set
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setSettingReminderId(null)} className="h-8 text-xs">
+                        Cancel
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </Card>
             </div>

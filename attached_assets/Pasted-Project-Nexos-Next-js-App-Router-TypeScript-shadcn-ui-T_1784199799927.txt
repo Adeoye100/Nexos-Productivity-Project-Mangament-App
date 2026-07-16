@@ -1,0 +1,33 @@
+Project: Nexos (Next.js App Router, TypeScript, shadcn/ui, Tailwind, pnpm)
+
+Context: Existing codebase. The dark theme is correct and should NOT be changed — use it as the design-quality reference bar. The light theme is broken, not just unpolished: it is currently the dark theme's components rendered with a pale background swapped in, with no real light-mode palette, inconsistent theme application, and contrast failures. Rebuild it as a proper light theme, and separately, rework the task card component. Do these as two distinct passes.
+
+## Pass 1: Rebuild the Light Theme (do not touch dark theme styles)
+
+Audit every component for hardcoded colors that bypass the theme system (likely raw hex/gray values instead of Tailwind's theme-aware classes or CSS variables tied to next-themes). Common culprits based on current screenshots:
+- Navbar/header is not switching to light mode at all — fix the root cause (likely a hardcoded bg-slate-900 or similar instead of a theme-variable class)
+- Chat window, settings cards, and info banners are flat mid-gray in light mode — design an actual light palette: white/near-white card surfaces, soft shadows or 1px borders for elevation instead of flat gray fills, and the same purple/teal accent colors from dark mode carried over at appropriate saturation for a light background
+- Settings input fields currently render as light-gray-on-light-gray — fix to white/near-white fill with visible border and clearly readable dark text, with a visible focus ring state
+- All icons (notification bell, etc.) must meet visible contrast against their background in both themes
+- "Powered by Gemini" bar and the Settings "Note" bar should become proper bordered/card-contained elements consistent with the rest of the design system, not floating unstyled pills
+- Verify theme switching applies instantly and consistently across every route (Weather, Tasks, AI Assistant, Settings) — no component should be "left behind" in the wrong theme
+
+Deliverable: light theme should look like a deliberate, designed counterpart to the dark theme — same visual language (rounded cards, accent gradients, spacing), inverted for a light surface — not a rushed adjustment.
+
+## Pass 2: Redesign the Task Card Component
+
+Current implementation renders each task as a single dense horizontal row (checkbox, title, reminder time, priority badge, category tag, notification icon, edit icon, delete icon all inline) — this doesn't scale past 1-2 tasks and won't work responsively.
+
+Replace with a proper card component, zoned as follows:
+- Top row: checkbox + task title (title should be the visual anchor, largest/boldest text in the card)
+- Metadata row (below title): due-date as a distinct chip/badge (icon + date), priority as a colored pill where color intensity maps to urgency (e.g. red/orange/green — not just a text label), category as a subtle tag
+- Actions: move edit/delete/reminder-toggle into a hover-revealed action cluster (desktop) or a persistent but visually minimal kebab (⋮) dropdown menu (mobile-friendly) — actions should not compete visually with task content by default
+- Card should have clear elevation/border distinct from the page background in both themes
+- Ensure the card gracefully reflows on narrow viewports — stack metadata vertically below title rather than overflowing horizontally
+
+Use shadcn/ui's Card, Badge, and DropdownMenu components as the base primitives for this — don't hand-roll new ones if equivalents exist in the current component library.
+
+## Constraints
+- Do not modify dark theme visual styling — only fix cross-theme bugs (e.g. the navbar issue) that affect both
+- Reuse existing Tailwind config theme tokens where possible rather than introducing new arbitrary colors
+- Test both themes on: Weather, Tasks (empty state AND populated state), AI Assistant, Settings routes before considering this complete
