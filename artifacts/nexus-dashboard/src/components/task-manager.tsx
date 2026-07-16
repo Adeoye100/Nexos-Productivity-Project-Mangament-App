@@ -231,7 +231,7 @@ export function TaskManager() {
 
       {/* Add Task Form */}
       <div className="animate-slide-in-up delay-200">
-        <Card className="glass-card p-6 border-primary/30 mb-8">
+        <Card className="glass-card p-6 border-primary/30 mb-8 border-t-[0px] border-r-[0px] border-b-[0px] border-l-[0px]">
           <div className="flex flex-col gap-4">
             <div className="flex flex-col md:flex-row gap-4">
               <Input
@@ -337,7 +337,7 @@ export function TaskManager() {
       <div className="space-y-4">
         {sortedTasks.length === 0 ? (
           <div className="animate-fade-in">
-            <Card className="glass-card p-16 text-center border-border/50 border-dashed">
+            <Card className="glass-card p-16 text-center border-border/50 border-dashed border-t-[0px] border-r-[0px] border-b-[0px] border-l-[0px]">
               <div className="flex flex-col items-center gap-4">
                 <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
                   <Check className="w-8 h-8 text-primary/50" />
