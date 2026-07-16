@@ -3,13 +3,17 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Nexus Dashboard API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: ai
+    description: AI assistant
+  - name: weather
+    description: Weather data
 paths:
   /healthz:
     get:
@@ -24,6 +28,116 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /chat:
+    post:
+      operationId: sendChat
+      tags: [ai]
+      summary: Send a chat message to the AI assistant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatInput"
+      responses:
+        "200":
+          description: AI response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /forecast:
+    get:
+      operationId: getForecast
+      tags: [weather]
+      summary: Get 5-day weather forecast
+      parameters:
+        - name: lat
+          in: query
+          schema:
+            type: string
+          description: Latitude
+        - name: lon
+          in: query
+          schema:
+            type: string
+          description: Longitude
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: City name query
+      responses:
+        "200":
+          description: Forecast data from OpenWeatherMap
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Missing location parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: API key not configured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /weather:
+    get:
+      operationId: getWeather
+      tags: [weather]
+      summary: Get current weather data
+      parameters:
+        - name: lat
+          in: query
+          schema:
+            type: string
+          description: Latitude
+        - name: lon
+          in: query
+          schema:
+            type: string
+          description: Longitude
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: City name query
+      responses:
+        "200":
+          description: Weather data from OpenWeatherMap
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Missing location parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: API key not configured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +147,36 @@ components:
           type: string
       required:
         - status
-
+    ChatMessage:
+      type: object
+      properties:
+        role:
+          type: string
+        content:
+          type: string
+      required:
+        - role
+        - content
+    ChatInput:
+      type: object
+      properties:
+        message:
+          type: string
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatMessage"
+    ChatResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error

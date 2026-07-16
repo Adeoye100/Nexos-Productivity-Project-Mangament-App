@@ -1,0 +1,40 @@
+Project: Nexos — privacy-first productivity app (Next.js App Router, TypeScript, shadcn/ui, Tailwind, pnpm)
+
+Context: This is an existing codebase. Do not rewrite existing architecture — extend and fix within current patterns (app/, components/, hooks/, lib/). Before making changes, inspect existing file structure and follow established conventions (component naming, hook patterns, styling approach already in use).
+
+## Task 1: Fix Theme Toggle
+- Audit current theme toggle implementation (likely next-themes or a custom context)
+- Fix: toggle must persist selection across page reloads and sessions (localStorage or cookie-based)
+- Fix: ensure toggle applies correctly to ALL components, including shadcn/ui components that may have hardcoded colors instead of using CSS variables
+- Verify no flash-of-wrong-theme on initial page load (use suppressHydrationWarning + theme script pattern if using next-themes)
+- Test: toggle should work identically on every route, not just the homepage
+
+## Task 2: Fix Notification Functionality
+- Audit current notification system — identify whether it's in-app toast only, or intended to support browser push/real-time updates
+- Fix broken triggers: notifications must fire reliably on [specify: task due, task completed, reminder — confirm which events should trigger]
+- Ensure notifications don't duplicate or fail silently
+- If using a toast library (e.g. sonner, react-hot-toast), confirm it's properly mounted at root layout level
+- Add: notification history/log so users can review missed notifications, not just catch them live
+
+## Task 3: Improve Task UX
+- Current task UX needs improvement — specifically: [confirm pain points: is it drag-and-drop ordering, quick-add friction, missing due dates, no priority/tagging, poor mobile layout?]
+- Add inline quick-edit (click task to edit in place, not a separate modal/page)
+- Add keyboard shortcuts for power users (e.g. Enter to add task, Esc to cancel edit)
+- Add visual priority/status indicators (not just a checkbox — color-coded urgency or status pills)
+- Ensure empty states are designed, not blank (e.g. "No tasks yet — add your first one" with a call to action)
+
+## Task 4: Build AI Chatbot Assistant
+- Add a chat interface (floating button + expandable panel, consistent with existing shadcn/ui design system)
+- Backend: Next.js API route calling an LLM (specify provider/key setup — e.g. Anthropic or OpenAI API, using environment variables, never hardcoded keys)
+- Core capability: chatbot should be able to read and act on the user's task list — answer "what's due today," create tasks from natural language, mark tasks complete via conversation
+- Persist chat history per user session (respect the app's "privacy-first" positioning — clarify if chat history should be stored server-side or kept local/ephemeral)
+- Add loading states and graceful error handling if the AI API call fails
+
+## Constraints
+- Do not introduce new state management libraries unless current approach (React state/context) is proven insufficient — justify before adding
+- Match existing dark/light theme tokens and Tailwind config — no new arbitrary colors
+- All new components go in components/, follow existing naming convention
+- Confirm environment variables needed and list them clearly rather than assuming defaults
+
+## Before starting
+Ask me to confirm: (1) exact task-due/notification trigger events, (2) which LLM provider/API key I'm using for the chatbot, (3) whether chat history should persist server-side.

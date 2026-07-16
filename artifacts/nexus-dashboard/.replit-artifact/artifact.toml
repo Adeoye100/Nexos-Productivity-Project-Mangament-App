@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Nexus Dashboard"
+version = "1.0.0"
+id = "artifacts/nexus-dashboard"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 26136
+
+[services.development]
+run = "pnpm --filter @workspace/nexus-dashboard run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/nexus-dashboard", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/nexus-dashboard/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "26136"
+BASE_PATH = "/"
