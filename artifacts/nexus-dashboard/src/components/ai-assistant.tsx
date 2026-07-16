@@ -5,12 +5,24 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Send, Bot, User, Sparkles, Trash2, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useTasks } from "@/context/tasks-context"
+import { useNotifications } from "@/context/notifications-context"
 
 type Message = {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  createdAt?: Date;
+  id: string
+  role: "user" | "assistant"
+  content: string
+  createdAt?: Date
+}
+
+const CHAT_STORAGE_KEY = "nexus-chat-history"
+const ACTION_RE = /<action>([\s\S]*?)<\/action>/
+
+const INITIAL_MESSAGE: Message = {
+  id: "init",
+  role: "assistant",
+  content:
+    "Hello! I'm your Nexus AI assistant. I can check your tasks, help you add new ones, mark tasks complete, give weather insights, and assist with daily planning. How can I help?",
 }
 
 const TypingIndicator = () => (
@@ -22,92 +34,154 @@ const TypingIndicator = () => (
 )
 
 export function AIAssistant() {
-  const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      role: "assistant",
-      content:
-        "Hello! I can help you with weather insights, task organization, and daily planning. How can I assist you today?",
-    },
-  ]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { tasks, addTask, toggleComplete } = useTasks()
+  const { addNotification } = useNotifications()
+
+  const [input, setInput] = useState("")
+  const [messages, setMessages] = useState<Message[]>(() => {
+    try {
+      const saved = localStorage.getItem(CHAT_STORAGE_KEY)
+      if (saved) {
+        const parsed = JSON.parse(saved) as Message[]
+        return parsed.map(m => ({ ...m, createdAt: m.createdAt ? new Date(m.createdAt) : undefined }))
+      }
+    } catch { /* ignore */ }
+    return [INITIAL_MESSAGE]
+  })
+  const [isLoading, setIsLoading] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const scrollToBottom = () => {
+  // Persist chat to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages))
+    } catch { /* ignore quota errors */ }
+  }, [messages])
+
+  // Auto-scroll
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }
+  }, [messages, isLoading])
 
-
-  const customHandleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!input.trim()) return;
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!input.trim()) return
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      role: 'user',
+      role: "user",
       content: input,
       createdAt: new Date(),
-    };
+    }
 
-    setMessages(prev => [...prev, userMessage]);
-    setIsLoading(true);
+    const nextMessages = [...messages, userMessage]
+    setMessages(nextMessages)
+    setIsLoading(true)
+    setInput("")
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
-      });
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: nextMessages.map(m => ({ role: m.role, content: m.content })),
+          tasks: tasks.map(t => ({
+            id: t.id,
+            title: t.title,
+            priority: t.priority,
+            category: t.category,
+            completed: t.completed,
+            dueDate: t.dueDate?.toISOString(),
+          })),
+        }),
+      })
 
-      if (!response.ok) throw new Error('Failed to fetch');
+      if (!response.ok) throw new Error("Request failed")
+      const data = await response.json() as { message: string }
 
-      const data = await response.json();
+      // Parse optional <action> block
+      const rawText = data.message
+      const actionMatch = rawText.match(ACTION_RE)
+      let displayText = rawText.replace(ACTION_RE, "").trim()
+
+      if (actionMatch) {
+        try {
+          const action = JSON.parse(actionMatch[1]) as {
+            type: "create_task" | "complete_task"
+            title?: string
+            priority?: string
+            category?: string
+            id?: string
+          }
+
+          if (action.type === "create_task" && action.title) {
+            addTask({
+              title: action.title,
+              category: (action.category as any) || "Personal",
+              priority: (action.priority as any) || "Medium",
+              completed: false,
+            })
+            displayText += `\n\n✅ Task added: "${action.title}"`
+          } else if (action.type === "complete_task" && action.id) {
+            const target = tasks.find(t => t.id === action.id)
+            if (target && !target.completed) {
+              toggleComplete(action.id)
+              addNotification({
+                type: "task_completed",
+                title: "Task completed via AI! 🎉",
+                message: `"${target.title}" was marked done by the assistant.`,
+              })
+              displayText += `\n\n✅ Task completed: "${target.title}"`
+            }
+          }
+        } catch { /* ignore malformed action */ }
+      }
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: data.message,
+        role: "assistant",
+        content: displayText,
         createdAt: new Date(),
-      };
+      }
+      setMessages(prev => [...prev, assistantMessage])
 
-      setMessages(prev => [...prev, assistantMessage]);
-    } catch (error) {
+      // Fire ai_reply notification
+      addNotification({
+        type: "ai_reply",
+        title: "AI Assistant replied",
+        message: displayText.slice(0, 80) + (displayText.length > 80 ? "…" : ""),
+      })
+    } catch {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.',
-        createdAt: new Date(),
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-      setInput('');
-    }
-  };
-
-  const clearChat = () => {
-    setMessages([
-      {
-        id: "1",
         role: "assistant",
-        content:
-          "Chat cleared. How can I help you now?",
-      },
-    ])
+        content: "Sorry, I couldn't reach the AI right now. Please try again.",
+        createdAt: new Date(),
+      }
+      setMessages(prev => [...prev, errorMessage])
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages, isLoading])
+  const clearChat = () => {
+    const fresh: Message = {
+      id: Date.now().toString(),
+      role: "assistant",
+      content: "Chat cleared. How can I help you?",
+      createdAt: new Date(),
+    }
+    setMessages([fresh])
+    localStorage.removeItem(CHAT_STORAGE_KEY)
+  }
 
   const quickPrompts = [
+    "What tasks are due soon?",
+    "Add a High priority task: review budget",
     "What's the weather like today?",
     "Help me organize my tasks",
-    "Give me productivity tips",
-    "Suggest a daily schedule",
-    "Give a simple, precise, and insightful answer to any question"
+    "Give me productivity tips for today",
   ]
 
   return (
@@ -121,7 +195,9 @@ export function AIAssistant() {
             </div>
             <h1 className="text-4xl font-bold neon-text">AI Assistant</h1>
           </div>
-          <p className="text-muted-foreground text-lg">Your intelligent companion powered by Gemini AI</p>
+          <p className="text-muted-foreground text-lg">
+            Your intelligent companion — reads your tasks, takes action
+          </p>
         </div>
         <Button
           variant="outline"
@@ -136,7 +212,7 @@ export function AIAssistant() {
       {/* Chat Container */}
       <Card className="glass-strong border-primary/20 mb-4 shadow-lg rounded-2xl overflow-hidden flex flex-col h-[600px]">
         <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
-          {messages.map((message) => (
+          {messages.map(message => (
             <div
               key={message.id}
               className={cn(
@@ -159,7 +235,11 @@ export function AIAssistant() {
                 )}
               >
                 <p className="leading-relaxed font-medium whitespace-pre-wrap">{message.content}</p>
-                {message.createdAt && <p className="text-[10px] mt-2 opacity-70 text-right">{message.createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>}
+                {message.createdAt && (
+                  <p className="text-[10px] mt-2 opacity-70 text-right">
+                    {message.createdAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                )}
               </div>
 
               {message.role === "user" && (
@@ -186,11 +266,11 @@ export function AIAssistant() {
 
         {/* Input Area */}
         <div className="border-t border-border p-4 bg-background/30 backdrop-blur-md">
-          <form onSubmit={customHandleSubmit} className="relative">
+          <form onSubmit={handleSubmit} className="relative">
             <Input
-              placeholder="Ask me anything..."
+              placeholder="Ask me anything, or say 'add task: …'"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={e => setInput(e.target.value)}
               className="w-full pl-4 pr-12 py-6 bg-background/50 border-primary/20 focus:border-primary/50 rounded-xl shadow-inner transition-all"
               disabled={isLoading}
             />
@@ -208,7 +288,7 @@ export function AIAssistant() {
 
       {/* Quick Prompts */}
       <div className="flex flex-wrap gap-2 justify-center">
-        {quickPrompts.map((prompt) => (
+        {quickPrompts.map(prompt => (
           <Button
             key={prompt}
             variant="outline"
@@ -221,13 +301,12 @@ export function AIAssistant() {
         ))}
       </div>
 
-      {/* Info Card */}
+      {/* Info */}
       <Card className="glass p-4 border-accent/20 mt-6 text-center">
         <p className="text-xs text-muted-foreground">
-          <span className="text-accent font-semibold">Powered by:</span> Google Gemini AI for intelligent responses.
+          <span className="text-accent font-semibold">Powered by:</span> Google Gemini AI — chat history saved locally in your browser.
         </p>
       </Card>
     </div>
   )
 }
-

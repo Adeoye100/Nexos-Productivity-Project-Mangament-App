@@ -1,0 +1,2 @@
+- [Nexus shared state](nexus-shared-state.md) — tasks + notifications are React contexts in App.tsx; both must wrap WouterRouter.
+- [Nexus AI action protocol](nexus-ai-action-protocol.md) — AI appends `<action>{…}</action>` XML to create/complete tasks; client strips + executes.

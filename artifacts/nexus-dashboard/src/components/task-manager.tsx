@@ -3,150 +3,135 @@ import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Trash2, Edit2, Check, X, Download, Sparkles, ArrowUp, ArrowRight, ArrowDown, Calendar, Bell } from "lucide-react"
+import {
+  Plus, Trash2, Edit2, Check, X, Download, Sparkles,
+  ArrowUp, ArrowRight, ArrowDown, Calendar, Bell, BellOff
+} from "lucide-react"
 import { cn } from "@/lib/utils"
-
-type Priority = "High" | "Medium" | "Low"
-
-interface Task {
-  id: string
-  title: string
-  category: string
-  priority: Priority
-  completed: boolean
-  createdAt: Date
-  dueDate?: Date
-  notified?: boolean
-}
+import { useTasks } from "@/context/tasks-context"
+import { useNotifications } from "@/context/notifications-context"
+import type { Task, Priority } from "@/context/tasks-context"
 
 const categories = ["Personal", "Work", "Health", "Shopping", "Other"]
 const priorities: Priority[] = ["High", "Medium", "Low"]
 
 export function TaskManager() {
-  const [tasks, setTasks] = useState<Task[]>([])
+  const { tasks, addTask, deleteTask, toggleComplete, updateTask } = useTasks()
+  const { addNotification } = useNotifications()
+
   const [newTask, setNewTask] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("Personal")
   const [selectedPriority, setSelectedPriority] = useState<Priority>("Medium")
   const [newTaskDueDate, setNewTaskDueDate] = useState("")
+  const [newTaskReminder, setNewTaskReminder] = useState("")
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editText, setEditText] = useState("")
   const [filterCategory, setFilterCategory] = useState<string | null>(null)
   const [aiSuggestion, setAiSuggestion] = useState("")
   const [notificationsEnabled, setNotificationsEnabled] = useState(false)
-  const [isClient, setIsClient] = useState(false)
+  const [settingReminderId, setSettingReminderId] = useState<string | null>(null)
+  const [reminderInput, setReminderInput] = useState("")
 
   useEffect(() => {
-    setIsClient(true)
-    // Load tasks from localStorage
-    const savedTasks = localStorage.getItem("tasks")
-    if (savedTasks) {
-      try {
-        const parsed = JSON.parse(savedTasks)
-        setTasks(parsed.map((t: any) => ({
-          ...t,
-          createdAt: new Date(t.createdAt),
-          dueDate: t.dueDate ? new Date(t.dueDate) : undefined,
-          priority: t.priority || "Medium"
-        })))
-      } catch (e) {
-        console.error("Failed to parse tasks", e)
-      }
-    }
-
-    // Generate AI suggestion based on tasks
     generateAiSuggestion()
-
-    // Request notification permission
     if ("Notification" in window) {
       if (Notification.permission === "granted") {
         setNotificationsEnabled(true)
       } else if (Notification.permission !== "denied") {
-        Notification.requestPermission().then(permission => {
-          if (permission === "granted") {
-            setNotificationsEnabled(true)
-          }
+        Notification.requestPermission().then(p => {
+          if (p === "granted") setNotificationsEnabled(true)
         })
       }
     }
   }, [])
 
+  // Notification checker: due, overdue, reminder
   useEffect(() => {
-    // Save tasks to localStorage
-    if (tasks.length > 0) {
-      localStorage.setItem("tasks", JSON.stringify(tasks))
-    }
-  }, [tasks])
-
-  // Check for due tasks every minute
-  useEffect(() => {
-    if (!notificationsEnabled) return
-
-    const checkDueTasks = () => {
+    const check = () => {
       const now = new Date()
-      const updatedTasks = tasks.map(task => {
-        if (!task.completed && task.dueDate && !task.notified) {
-          const dueDate = new Date(task.dueDate)
-          if (dueDate <= now) {
-            // Trigger notification
-            new Notification(`Task Due: ${task.title}`, {
-              body: `Your task "${task.title}" is due now!`,
-              icon: "/icon.png" // We assume this exists based on previous logs 
+      tasks.forEach(task => {
+        if (task.completed) return
+
+        // Task due
+        if (task.dueDate && !task.notified) {
+          if (new Date(task.dueDate) <= now) {
+            addNotification({
+              type: "task_due",
+              title: `Due now: ${task.title}`,
+              message: `Your task "${task.title}" is due!`,
             })
-            return { ...task, notified: true }
+            updateTask(task.id, { notified: true })
           }
         }
-        return task
-      })
 
-      // Only update state if changes occurred to avoid loops
-      if (JSON.stringify(updatedTasks) !== JSON.stringify(tasks)) {
-        setTasks(updatedTasks)
-      }
+        // Task overdue (1+ hour past due)
+        if (task.dueDate && task.notified && !task.overdueNotified) {
+          const overdueSince = new Date(new Date(task.dueDate).getTime() + 60 * 60 * 1000)
+          if (now >= overdueSince) {
+            addNotification({
+              type: "task_overdue",
+              title: `Overdue: ${task.title}`,
+              message: `"${task.title}" was due ${new Date(task.dueDate).toLocaleString()} and hasn't been completed.`,
+            })
+            updateTask(task.id, { overdueNotified: true })
+          }
+        }
+
+        // Reminder
+        if (task.reminderAt && !task.reminderNotified) {
+          if (new Date(task.reminderAt) <= now) {
+            addNotification({
+              type: "reminder",
+              title: `Reminder: ${task.title}`,
+              message: `Scheduled reminder for "${task.title}".`,
+            })
+            updateTask(task.id, { reminderNotified: true })
+          }
+        }
+      })
     }
 
-    const interval = setInterval(checkDueTasks, 60000) // Check every minute
-    checkDueTasks() // Check immediately
-
+    const interval = setInterval(check, 60_000)
+    check()
     return () => clearInterval(interval)
-  }, [tasks, notificationsEnabled])
+  }, [tasks, addNotification, updateTask])
 
   const generateAiSuggestion = () => {
     const suggestions = [
       "Consider grouping similar tasks together for better efficiency.",
-      "You have outdoor tasks scheduled. Check the weather forecast first!",
-      "Break down large tasks into smaller, manageable steps.",
-      "Schedule your most important tasks during your peak productivity hours.",
-      "Don't forget to take breaks between tasks to maintain focus.",
+      "Break large tasks into smaller, manageable steps.",
+      "Schedule your most important tasks during peak productivity hours.",
+      "Take short breaks between tasks to maintain focus.",
+      "High-priority tasks tackled first = more momentum for the day.",
     ]
     setAiSuggestion(suggestions[Math.floor(Math.random() * suggestions.length)])
   }
 
-  const addTask = () => {
+  const handleAddTask = () => {
     if (!newTask.trim()) return
-
-    const task: Task = {
-      id: Date.now().toString(),
+    addTask({
       title: newTask,
       category: selectedCategory,
       priority: selectedPriority,
       completed: false,
-      createdAt: new Date(),
       dueDate: newTaskDueDate ? new Date(newTaskDueDate) : undefined,
-      notified: false
-    }
-
-    setTasks([task, ...tasks])
+      reminderAt: newTaskReminder ? new Date(newTaskReminder) : undefined,
+    })
     setNewTask("")
     setNewTaskDueDate("")
+    setNewTaskReminder("")
     generateAiSuggestion()
   }
 
-  const deleteTask = (id: string) => {
-    setTasks(tasks.filter((t) => t.id !== id))
-  }
-
-  const toggleComplete = (id: string) => {
-    setTasks(tasks.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t)))
+  const handleToggleComplete = (task: Task) => {
+    if (!task.completed) {
+      addNotification({
+        type: "task_completed",
+        title: "Task completed! 🎉",
+        message: `"${task.title}" has been marked as done.`,
+      })
+    }
+    toggleComplete(task.id)
   }
 
   const startEdit = (task: Task) => {
@@ -155,8 +140,8 @@ export function TaskManager() {
   }
 
   const saveEdit = () => {
-    if (!editText.trim()) return
-    setTasks(tasks.map((t) => (t.id === editingId ? { ...t, title: editText } : t)))
+    if (!editText.trim() || !editingId) return
+    updateTask(editingId, { title: editText })
     setEditingId(null)
     setEditText("")
   }
@@ -166,11 +151,20 @@ export function TaskManager() {
     setEditText("")
   }
 
+  const saveReminder = (taskId: string) => {
+    if (!reminderInput) return
+    updateTask(taskId, { reminderAt: new Date(reminderInput), reminderNotified: false })
+    setSettingReminderId(null)
+    setReminderInput("")
+  }
+
   const exportTasks = () => {
-    const content = tasks.map((t) => {
-      const dateStr = t.dueDate ? ` [Due: ${t.dueDate.toLocaleString()}]` : ""
-      return `[${t.completed ? "x" : " "}] ${t.title} (${t.category}) - ${t.priority}${dateStr}`
-    }).join("\n")
+    const content = tasks
+      .map(t => {
+        const due = t.dueDate ? ` [Due: ${new Date(t.dueDate).toLocaleString()}]` : ""
+        return `[${t.completed ? "x" : " "}] ${t.title} (${t.category}) - ${t.priority}${due}`
+      })
+      .join("\n")
     const blob = new Blob([content], { type: "text/plain" })
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
@@ -179,48 +173,34 @@ export function TaskManager() {
     a.click()
   }
 
-  const filteredTasks = filterCategory ? tasks.filter((t) => t.category === filterCategory) : tasks
+  const requestPermission = () => {
+    Notification.requestPermission().then(p => {
+      if (p === "granted") setNotificationsEnabled(true)
+    })
+  }
 
-  // Sort tasks: Incomplete first, then by priority (High > Medium > Low)
+  const filteredTasks = filterCategory ? tasks.filter(t => t.category === filterCategory) : tasks
   const sortedTasks = [...filteredTasks].sort((a, b) => {
     if (a.completed === b.completed) {
-      const priorityOrder = { High: 0, Medium: 1, Low: 2 }
-      return priorityOrder[a.priority] - priorityOrder[b.priority]
+      const order = { High: 0, Medium: 1, Low: 2 }
+      return order[a.priority] - order[b.priority]
     }
     return a.completed ? 1 : -1
   })
 
-  // Group by priority if no filter for better view or just list them? 
-  // Let's stick to list but sorted.
-
-  const completedCount = tasks.filter((t) => t.completed).length
-  const totalCount = tasks.length
-
-  const requestPermission = () => {
-    Notification.requestPermission().then(permission => {
-      if (permission === "granted") {
-        setNotificationsEnabled(true)
-      }
-    })
-  }
-
-  if (!isClient) {
-    return null
-  }
+  const completedCount = tasks.filter(t => t.completed).length
 
   return (
     <div className="container mx-auto px-4 relative z-10">
       {/* Header */}
-      <div
-        className="mb-8 animate-slide-in-up flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
-      >
+      <div className="mb-8 animate-slide-in-up flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-5xl font-bold mb-3 neon-text tracking-tight">Task Manager</h1>
           <p className="text-muted-foreground text-xl">
-            {completedCount} of {totalCount} tasks completed
+            {completedCount} of {tasks.length} tasks completed
           </p>
         </div>
-        {!notificationsEnabled && "Notification" in window && (
+        {"Notification" in window && !notificationsEnabled && (
           <Button
             variant="outline"
             onClick={requestPermission}
@@ -234,9 +214,7 @@ export function TaskManager() {
 
       {/* AI Suggestion */}
       {aiSuggestion && (
-        <div
-          className="mb-8 animate-slide-in-up delay-100"
-        >
+        <div className="mb-8 animate-slide-in-up delay-100">
           <Card className="glass-card p-6 border-accent/30">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center flex-shrink-0 neon-glow-accent">
@@ -252,21 +230,19 @@ export function TaskManager() {
       )}
 
       {/* Add Task Form */}
-      <div
-        className="animate-slide-in-up delay-200"
-      >
+      <div className="animate-slide-in-up delay-200">
         <Card className="glass-card p-6 border-primary/30 mb-8">
           <div className="flex flex-col gap-4">
             <div className="flex flex-col md:flex-row gap-4">
               <Input
                 placeholder="Add a new task..."
                 value={newTask}
-                onChange={(e) => setNewTask(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && addTask()}
+                onChange={e => setNewTask(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleAddTask()}
                 className="flex-1 bg-background/30 border-border/50 backdrop-blur-sm text-foreground placeholder:text-muted-foreground"
               />
               <Button
-                onClick={addTask}
+                onClick={handleAddTask}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 neon-glow rounded-xl font-semibold md:w-auto w-full"
               >
                 <Plus className="w-5 h-5 mr-2" />
@@ -277,33 +253,40 @@ export function TaskManager() {
             <div className="flex flex-wrap gap-2 items-center">
               <select
                 value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                onChange={e => setSelectedCategory(e.target.value)}
                 className="px-4 py-2 rounded-xl bg-background/30 border border-border/50 text-foreground backdrop-blur-sm"
               >
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
+                {categories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
               <select
                 value={selectedPriority}
-                onChange={(e) => setSelectedPriority(e.target.value as Priority)}
+                onChange={e => setSelectedPriority(e.target.value as Priority)}
                 className="px-4 py-2 rounded-xl bg-background/30 border border-border/50 text-foreground backdrop-blur-sm"
               >
-                {priorities.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
+                {priorities.map(p => (
+                  <option key={p} value={p}>{p} Priority</option>
                 ))}
               </select>
-              <div className="flex items-center gap-2 bg-background/30 border border-border/50 rounded-xl px-2 backdrop-blur-sm">
-                <Calendar className="w-4 h-4 text-muted-foreground" />
+              <div className="flex items-center gap-2 bg-background/30 border border-border/50 rounded-xl px-3 backdrop-blur-sm">
+                <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                 <Input
                   type="datetime-local"
                   value={newTaskDueDate}
-                  onChange={(e) => setNewTaskDueDate(e.target.value)}
+                  onChange={e => setNewTaskDueDate(e.target.value)}
                   className="border-none bg-transparent focus-visible:ring-0 w-auto h-9 text-sm text-foreground"
+                  title="Due date"
+                />
+              </div>
+              <div className="flex items-center gap-2 bg-background/30 border border-border/50 rounded-xl px-3 backdrop-blur-sm">
+                <Bell className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <Input
+                  type="datetime-local"
+                  value={newTaskReminder}
+                  onChange={e => setNewTaskReminder(e.target.value)}
+                  className="border-none bg-transparent focus-visible:ring-0 w-auto h-9 text-sm text-foreground"
+                  title="Remind me at"
                 />
               </div>
             </div>
@@ -325,7 +308,7 @@ export function TaskManager() {
         >
           All
         </Button>
-        {categories.map((cat) => (
+        {categories.map(cat => (
           <Button
             key={cat}
             variant={filterCategory === cat ? "default" : "outline"}
@@ -353,20 +336,38 @@ export function TaskManager() {
       {/* Tasks List */}
       <div className="space-y-4">
         {sortedTasks.length === 0 ? (
-          <div
-            key="empty"
-            className="animate-fade-in"
-          >
-            <Card className="glass-card p-12 text-center border-border/50">
-              <p className="text-muted-foreground text-lg">No tasks found.</p>
+          <div className="animate-fade-in">
+            <Card className="glass-card p-16 text-center border-border/50 border-dashed">
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <Check className="w-8 h-8 text-primary/50" />
+                </div>
+                <div>
+                  <p className="text-lg font-semibold text-foreground mb-1">
+                    {filterCategory ? `No ${filterCategory} tasks` : "No tasks yet"}
+                  </p>
+                  <p className="text-muted-foreground text-sm">
+                    {filterCategory
+                      ? `Add your first ${filterCategory.toLowerCase()} task above.`
+                      : "Add your first task above — type something and press Enter."}
+                  </p>
+                </div>
+                {!filterCategory && (
+                  <Button
+                    variant="outline"
+                    onClick={() => document.querySelector<HTMLInputElement>('input[placeholder="Add a new task..."]')?.focus()}
+                    className="border-primary/30 text-primary hover:bg-primary/10 rounded-xl"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add your first task
+                  </Button>
+                )}
+              </div>
             </Card>
           </div>
         ) : (
-          sortedTasks.map((task) => (
-            <div
-              key={task.id}
-              className="animate-slide-in-up"
-            >
+          sortedTasks.map(task => (
+            <div key={task.id} className="animate-slide-in-up">
               <Card
                 className={cn(
                   "glass-card p-5 border-border/50 hover:border-primary/40 transition-colors duration-300",
@@ -376,10 +377,12 @@ export function TaskManager() {
                 <div className="flex items-center gap-4">
                   {/* Checkbox */}
                   <button
-                    onClick={() => toggleComplete(task.id)}
+                    onClick={() => handleToggleComplete(task)}
                     className={cn(
                       "w-6 h-6 rounded border-2 flex items-center justify-center transition-all flex-shrink-0",
-                      task.completed ? "bg-primary border-primary" : "border-muted-foreground hover:border-primary",
+                      task.completed
+                        ? "bg-primary border-primary"
+                        : "border-muted-foreground hover:border-primary",
                     )}
                   >
                     {task.completed && <Check className="w-4 h-4 text-primary-foreground" />}
@@ -389,8 +392,8 @@ export function TaskManager() {
                   {editingId === task.id ? (
                     <Input
                       value={editText}
-                      onChange={(e) => setEditText(e.target.value)}
-                      onKeyDown={(e) => {
+                      onChange={e => setEditText(e.target.value)}
+                      onKeyDown={e => {
                         if (e.key === "Enter") saveEdit()
                         if (e.key === "Escape") cancelEdit()
                       }}
@@ -403,22 +406,31 @@ export function TaskManager() {
                         <p className={cn("text-foreground font-medium", task.completed && "line-through text-muted-foreground")}>
                           {task.title}
                         </p>
-
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-2">
                           {task.dueDate && (
                             <span className={cn(
                               "text-xs flex items-center gap-1",
-                              task.dueDate < new Date() && !task.completed ? "text-destructive font-bold" : "text-muted-foreground"
+                              new Date(task.dueDate) < new Date() && !task.completed
+                                ? "text-destructive font-bold"
+                                : "text-muted-foreground"
                             )}>
                               <Calendar className="w-3 h-3" />
-                              {task.dueDate.toLocaleString()}
+                              {new Date(task.dueDate).toLocaleString()}
+                            </span>
+                          )}
+                          {task.reminderAt && !task.reminderNotified && (
+                            <span className="text-xs flex items-center gap-1 text-accent">
+                              <Bell className="w-3 h-3" />
+                              {new Date(task.reminderAt).toLocaleString()}
                             </span>
                           )}
                           <span className={cn(
                             "text-xs px-2 py-1 rounded-full border flex items-center gap-1",
-                            task.priority === "High" ? "border-red-500/50 text-red-400 bg-red-950/20" :
-                              task.priority === "Medium" ? "border-yellow-500/50 text-yellow-400 bg-yellow-950/20" :
-                                "border-blue-500/50 text-blue-400 bg-blue-950/20"
+                            task.priority === "High"
+                              ? "border-red-500/50 text-red-400 bg-red-950/20"
+                              : task.priority === "Medium"
+                              ? "border-yellow-500/50 text-yellow-400 bg-yellow-950/20"
+                              : "border-blue-500/50 text-blue-400 bg-blue-950/20",
                           )}>
                             {task.priority === "High" && <ArrowUp className="w-3 h-3" />}
                             {task.priority === "Medium" && <ArrowRight className="w-3 h-3" />}
@@ -430,18 +442,33 @@ export function TaskManager() {
                           </span>
                         </div>
                       </div>
+
+                      {/* Inline reminder setter */}
+                      {settingReminderId === task.id && (
+                        <div className="flex items-center gap-2 mt-2 pl-0">
+                          <Input
+                            type="datetime-local"
+                            value={reminderInput}
+                            onChange={e => setReminderInput(e.target.value)}
+                            className="h-8 text-xs bg-background/50 border-accent/30 w-auto"
+                            autoFocus
+                          />
+                          <Button size="sm" onClick={() => saveReminder(task.id)} className="h-8 text-xs bg-accent hover:bg-accent/90">
+                            Set
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => setSettingReminderId(null)} className="h-8 text-xs">
+                            Cancel
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   )}
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 flex-shrink-0">
                     {editingId === task.id ? (
                       <>
-                        <Button
-                          size="sm"
-                          onClick={saveEdit}
-                          className="bg-primary text-primary-foreground hover:bg-primary/90"
-                        >
+                        <Button size="sm" onClick={saveEdit} className="bg-primary text-primary-foreground hover:bg-primary/90">
                           <Check className="w-4 h-4" />
                         </Button>
                         <Button size="sm" variant="outline" onClick={cancelEdit} className="border-border bg-transparent">
@@ -450,6 +477,31 @@ export function TaskManager() {
                       </>
                     ) : (
                       <>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            if (settingReminderId === task.id) {
+                              setSettingReminderId(null)
+                            } else {
+                              setSettingReminderId(task.id)
+                              setReminderInput(
+                                task.reminderAt
+                                  ? new Date(task.reminderAt).toISOString().slice(0, 16)
+                                  : ""
+                              )
+                            }
+                          }}
+                          className={cn(
+                            "text-muted-foreground hover:text-accent",
+                            task.reminderAt && !task.reminderNotified && "text-accent"
+                          )}
+                          title="Set reminder"
+                        >
+                          {task.reminderAt && !task.reminderNotified
+                            ? <Bell className="w-4 h-4" />
+                            : <BellOff className="w-4 h-4" />}
+                        </Button>
                         <Button
                           size="sm"
                           variant="ghost"

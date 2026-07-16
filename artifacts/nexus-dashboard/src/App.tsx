@@ -1,11 +1,14 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
+import { Toaster as SonnerToaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import { Route, Switch, Router as WouterRouter } from 'wouter';
 import { ThemeProvider } from '@/components/theme-provider';
+import { TasksProvider } from '@/context/tasks-context';
+import { NotificationsProvider } from '@/context/notifications-context';
 
-// Pages (converted from Next.js app/ pages)
+// Pages
 import { WeatherDashboard } from '@/components/weather-dashboard';
 import { Navigation } from '@/components/navigation';
 import { OnboardingWrapper } from '@/components/onboarding-wrapper';
@@ -78,10 +81,15 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-            <Router />
-          </WouterRouter>
-          <Toaster />
+          <TasksProvider>
+            <NotificationsProvider>
+              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+                <Router />
+              </WouterRouter>
+              <Toaster />
+              <SonnerToaster richColors closeButton />
+            </NotificationsProvider>
+          </TasksProvider>
         </ThemeProvider>
       </TooltipProvider>
     </QueryClientProvider>

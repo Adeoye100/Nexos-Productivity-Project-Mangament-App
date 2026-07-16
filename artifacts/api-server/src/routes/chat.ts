@@ -8,32 +8,71 @@ const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-1.5-flash";
 const OPENROUTER_MODEL =
   process.env.OPENROUTER_MODEL || "google/gemini-2.0-flash-001";
 
-const SYSTEM_PROMPT =
-  process.env.SYSTEM_PROMPT ||
-  `You are a helpful AI assistant integrated into a weather and productivity dashboard.
-You help users with:
-- Weather insights and recommendations
-- Task organization and productivity tips
-- Daily planning and scheduling advice
-- General questions about their day
-- Provide concise, friendly, and actionable responses
-- list relevant sources of information
+interface TaskSummary {
+  id: string;
+  title: string;
+  priority: string;
+  category: string;
+  completed: boolean;
+  dueDate?: string;
+}
 
-Be concise, friendly, and actionable in your responses.`;
+function buildSystemPrompt(tasks?: TaskSummary[]): string {
+  const base =
+    process.env.SYSTEM_PROMPT ||
+    `You are Nexus, an intelligent AI assistant built into a weather and productivity dashboard.
+You help users with weather insights, task organization, productivity tips, and daily planning.
+Be concise, friendly, and actionable. Keep lists brief. When you do not know something, say so.`;
 
-router.post("/chat", async (req, res) => {
-  const body = req.body as { message?: string; messages?: { role: string; content: string }[] };
+  if (!tasks || tasks.length === 0) return base;
 
-  let userMessage = body?.message;
-  if (!userMessage && body?.messages && Array.isArray(body.messages)) {
-    const lastMessage = body.messages[body.messages.length - 1];
-    userMessage = lastMessage?.content;
+  const pending = tasks.filter((t) => !t.completed);
+  const done = tasks.filter((t) => t.completed);
+
+  let context = `\n\n--- User's tasks (${tasks.length} total, ${pending.length} pending, ${done.length} done) ---\n`;
+  pending.forEach((t) => {
+    const due = t.dueDate
+      ? ` [due: ${new Date(t.dueDate).toLocaleDateString()}]`
+      : "";
+    context += `• [PENDING | ${t.priority}] ${t.title} (${t.category})${due} [id: ${t.id}]\n`;
+  });
+  if (done.length) {
+    done.slice(0, 5).forEach((t) => {
+      context += `• [DONE] ${t.title} [id: ${t.id}]\n`;
+    });
+    if (done.length > 5) context += `• … and ${done.length - 5} more completed tasks\n`;
   }
 
-  if (!userMessage || userMessage.trim() === "") {
+  context += `
+You can act on tasks by appending ONE XML action block AFTER your normal reply text (no extra formatting):
+  Create task : <action>{"type":"create_task","title":"…","priority":"High|Medium|Low","category":"Personal|Work|Health|Shopping|Other"}</action>
+  Complete task: <action>{"type":"complete_task","id":"<task_id>"}</action>
+Only include an action block when the user explicitly asks you to create or complete a specific task. Never add one otherwise.`;
+
+  return base + context;
+}
+
+router.post("/chat", async (req, res) => {
+  const body = req.body as {
+    message?: string;
+    messages?: { role: string; content: string }[];
+    tasks?: TaskSummary[];
+  };
+
+  const history = (body?.messages || []).filter(
+    (m) => m.role === "user" || m.role === "assistant",
+  );
+
+  const userMessage =
+    body?.message ||
+    (history.length > 0 ? history[history.length - 1]?.content : undefined);
+
+  if (!userMessage?.trim()) {
     res.status(400).json({ error: "No user message provided" });
     return;
   }
+
+  const systemPrompt = buildSystemPrompt(body?.tasks);
 
   try {
     if (AI_PROVIDER === "openrouter") {
@@ -55,10 +94,7 @@ router.post("/chat", async (req, res) => {
           },
           body: JSON.stringify({
             model: OPENROUTER_MODEL,
-            messages: [
-              { role: "system", content: SYSTEM_PROMPT },
-              { role: "user", content: userMessage },
-            ],
+            messages: [{ role: "system", content: systemPrompt }, ...history],
           }),
         },
       );
@@ -70,9 +106,10 @@ router.post("/chat", async (req, res) => {
         return;
       }
 
-      const data = (await response.json()) as { choices: { message: { content: string } }[] };
-      const text = data.choices[0]?.message?.content || "";
-      res.json({ message: text });
+      const data = (await response.json()) as {
+        choices: { message: { content: string } }[];
+      };
+      res.json({ message: data.choices[0]?.message?.content || "" });
     } else {
       // Gemini (default)
       const keysRaw = process.env.GOOGLE_GEMINI_API_KEY || "";
@@ -82,13 +119,23 @@ router.post("/chat", async (req, res) => {
       if (!key) {
         if (process.env.NODE_ENV === "development") {
           res.json({
-            message:
-              "Mock response: Configure GOOGLE_GEMINI_API_KEY for real AI.",
+            message: "Mock response: Configure GOOGLE_GEMINI_API_KEY for real AI.",
           });
           return;
         }
         res.status(500).json({ error: "GOOGLE_GEMINI_API_KEY is not configured" });
         return;
+      }
+
+      // Build Gemini multi-turn contents (role: user | model)
+      const contents = history.map((m) => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text: m.content }],
+      }));
+
+      // Guarantee the last entry is from the user
+      if (!contents.length || contents[contents.length - 1].role !== "user") {
+        contents.push({ role: "user", parts: [{ text: userMessage }] });
       }
 
       const response = await fetch(
@@ -97,24 +144,24 @@ router.post("/chat", async (req, res) => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            contents: [
-              {
-                parts: [{ text: `${SYSTEM_PROMPT}\n\nUser: ${userMessage}` }],
-              },
-            ],
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            contents,
           }),
         },
       );
 
-      const data = (await response.json()) as { candidates?: { content: { parts: { text: string }[] } }[]; error?: unknown };
+      const data = (await response.json()) as {
+        candidates?: { content: { parts: { text: string }[] } }[];
+        error?: unknown;
+      };
+
       if (!response.ok) {
         req.log.error({ data }, "Gemini API error");
         res.status(502).json({ error: "AI provider error" });
         return;
       }
 
-      const text =
-        data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
       res.json({ message: text });
     }
   } catch (error) {
