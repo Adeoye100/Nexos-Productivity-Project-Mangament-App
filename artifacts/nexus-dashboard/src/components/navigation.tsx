@@ -43,7 +43,7 @@ export function Navigation() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="flex gap-2 px-4 py-2 rounded-xl transition-all duration-300 glass-card neon-glow text-primary justify-start items-center rounded-tl-[50px] rounded-tr-[50px] rounded-br-[50px] rounded-bl-[50px]"
+                    className="flex gap-2 px-4 py-2 rounded-xl transition-all duration-300 glass-card neon-glow text-primary justify-start items-center rounded-tl-[50px] rounded-tr-[50px] rounded-br-[50px] rounded-bl-[50px] border-t-[0px] border-r-[0px] border-b-[0px] border-l-[0px]"
                   >
                     <Icon className="w-5 h-5" />
                     <span className="text-sm font-semibold tracking-wide hidden md:inline">{link.label}</span>
