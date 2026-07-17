@@ -1,0 +1,33 @@
+Project: Nexos (Next.js App Router, TypeScript, shadcn/ui, Tailwind, pnpm)
+
+Context: Existing codebase. Add a new standalone feature: a Matrix/GitHub-contribution-graph-style habit tracker. This should NOT touch existing Task Manager logic — habits are a separate data model and separate route/page, even though visually consistent with the rest of the app.
+
+## Data Model
+- Habit: { id, name, category (optional), createdAt, targetFrequency (daily/weekly/custom), color (optional per-habit accent) }
+- HabitEntry: { id, habitId, date (YYYY-MM-DD), completed: boolean }
+- Store using the same persistence approach already used for Tasks (check existing lib/ or hooks/ for the current storage pattern — likely localStorage-based given the "privacy-first" positioning — and reuse the same pattern, don't introduce a new storage mechanism)
+
+## Core UI: Contribution Heatmap Grid
+- Render a grid of squares representing the last 12 months (or current year), one column per week, one row per day-of-week — matching GitHub's contribution graph layout exactly
+- Each square's fill intensity maps to completion ratio for that day: 0 habits done = empty/neutral cell, partial completion = mid-intensity accent color, full completion = highest-intensity accent color (use 4-5 intensity steps, not just binary on/off)
+- Hovering a square shows a tooltip: date + which habits were completed that day (e.g. "3/4 habits completed — Mar 12")
+- Support per-habit individual heatmaps (view one habit's history alone) AND a combined "all habits" aggregate heatmap
+- Color scheme: dark theme should use a green/teal intensity scale reminiscent of GitHub's graph but matching Nexos's existing teal/purple accent palette (do not introduce GitHub's exact green — derive an intensity scale from Nexos's existing accent color). Light theme needs its own properly-contrasted intensity scale, not a washed-out version of the dark one — apply the same theme-correctness standard used elsewhere in the app.
+
+## Interaction
+- Simple daily check-off UI above or beside the grid: list of active habits for today, each with a checkbox/toggle — checking it darkens today's square in real time
+- Adding a new habit: simple form (name, optional category, optional target frequency)
+- Clicking any past square should NOT allow editing history by default unless explicitly toggled into an "edit past entries" mode — protects the integrity of the streak data from accidental changes
+
+## Gamification elements
+- Current streak counter (consecutive days with at least one habit completed) and longest streak, displayed prominently above the grid
+- Per-habit streak tracking as well as overall streak
+
+## Navigation
+- Add "Habits" as a new item in the main nav (alongside Weather, Tasks, AI Assistant, Settings), using an appropriate icon (e.g. a grid/calendar icon, not a checkmark — that's already used for Tasks)
+
+## Constraints
+- Reuse existing Card, Tooltip, and Button primitives from the current shadcn/ui setup — don't introduce a new charting/heatmap library if this can be hand-built with a CSS grid (it can — GitHub-style heatmaps are just a styled grid, no charting library needed)
+- Must work correctly in both light and dark theme from day one — do not repeat the theme-bug pattern from Weather/Settings
+- Mobile: grid should horizontally scroll rather than break layout on narrow viewports
+- Test with at least 3 sample habits and several days of entries before considering this complete

@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Cloud, CheckSquare, MessageSquare, Settings, Bell, SunMoon } from "lucide-react"
+import { Cloud, CheckSquare, MessageSquare, Settings, Bell, LayoutGrid } from "lucide-react"
 import { Link, useLocation } from "wouter"
 import { cn } from "@/lib/utils"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -12,10 +12,11 @@ export function Navigation() {
   const { unreadCount, markAllRead } = useNotifications()
 
   const links = [
-    { href: "/", label: "Weather", icon: Cloud },
-    { href: "/tasks", label: "Tasks", icon: CheckSquare },
-    { href: "/assistant", label: "AI Assistant", icon: MessageSquare },
-    { href: "/settings", label: "Settings", icon: Settings },
+    { href: "/",         label: "Weather",      mobileLabel: "Weather",  icon: Cloud },
+    { href: "/tasks",    label: "Tasks",         mobileLabel: "Tasks",    icon: CheckSquare },
+    { href: "/assistant",label: "AI Assistant",  mobileLabel: "AI",       icon: MessageSquare },
+    { href: "/habits",   label: "Habits",        mobileLabel: "Habits",   icon: LayoutGrid },
+    { href: "/settings", label: "Settings",      mobileLabel: "Settings", icon: Settings },
   ]
 
   const handleBellClick = () => {
@@ -45,7 +46,7 @@ export function Navigation() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-full transition-all duration-200 min-w-[64px]",
+                  "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-full transition-all duration-200 min-w-[56px]",
                   isActive
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
@@ -87,14 +88,14 @@ export function Navigation() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-full transition-all duration-200 min-w-[52px]",
+                  "flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-full transition-all duration-200 min-w-[44px]",
                   isActive
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 <Icon className="w-5 h-5" />
-                <span className="text-[9px] font-medium leading-none">{link.label}</span>
+                <span className="text-[9px] font-medium leading-none">{link.mobileLabel}</span>
               </Link>
             )
           })}

@@ -7,6 +7,7 @@ import { Route, Switch, Router as WouterRouter } from 'wouter';
 import { ThemeProvider } from '@/components/theme-provider';
 import { TasksProvider } from '@/context/tasks-context';
 import { NotificationsProvider } from '@/context/notifications-context';
+import { HabitsProvider } from '@/context/habits-context';
 
 // Pages
 import { WeatherDashboard } from '@/components/weather-dashboard';
@@ -16,6 +17,7 @@ import { BackgroundManager } from '@/components/background-manager';
 import { TaskManager } from '@/components/task-manager';
 import { AIAssistant } from '@/components/ai-assistant';
 import { SettingsPanel } from '@/components/settings-panel';
+import { HabitTracker } from '@/components/habit-tracker';
 
 const queryClient = new QueryClient();
 
@@ -64,12 +66,22 @@ function SettingsPage() {
   );
 }
 
+function HabitsPage() {
+  return (
+    <main className="min-h-screen bg-background">
+      <Navigation />
+      <HabitTracker />
+    </main>
+  );
+}
+
 function Router() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
       <Route path="/tasks" component={TasksPage} />
       <Route path="/assistant" component={AssistantPage} />
+      <Route path="/habits" component={HabitsPage} />
       <Route path="/settings" component={SettingsPage} />
       <Route component={NotFound} />
     </Switch>
@@ -83,11 +95,13 @@ function App() {
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <TasksProvider>
             <NotificationsProvider>
+              <HabitsProvider>
               <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
                 <Router />
               </WouterRouter>
               <Toaster />
               <SonnerToaster richColors closeButton />
+              </HabitsProvider>
             </NotificationsProvider>
           </TasksProvider>
         </ThemeProvider>
