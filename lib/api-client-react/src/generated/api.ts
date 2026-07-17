@@ -367,10 +367,3 @@ export function useGetWeather<TData = Awaited<ReturnType<typeof getWeather>>, TE
 
   return withQueryKey(query, queryOptions.queryKey);
 }
-
-
-
-
-
-
-
