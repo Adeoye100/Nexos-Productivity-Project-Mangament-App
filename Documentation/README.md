@@ -8,6 +8,7 @@ This folder contains Obsidian‑style markdown notes that describe the features 
 ## Feature Notes
 - [[Task Manager]]
 - [[Habit Tracker]]
+- [[GitHub Integration]]
 - [[AI Assistant]]
 - [[Command Manager]]
 - [[Background Manager]]
@@ -17,6 +18,7 @@ This folder contains Obsidian‑style markdown notes that describe the features 
 - [[Weekly Forecast]]
 - [[Weather Card]]
 - [[Keyboard Shortcuts]]
+- [[Security & Privacy]]
 
 ## How to Use
 Open any `.md` file with a Markdown viewer that supports Wikilinks (e.g., Obsidian, VS Code with Markdown preview enhancements, or GitHub). Clicking a link will navigate to the related note.

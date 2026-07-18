@@ -13,10 +13,11 @@ Visualize and build streaks for daily, weekly, or custom habits with a GitHub‑
 - **Vim Navigation** – `j/k` to move between habits, `<Enter>` to select, `<Space>` to toggle today, `/` to add new habit, `Esc` to cancel.
 - **Categories & Colors** – Group habits and assign custom colors for visual distinction.
 - **Persistence** – All habit data saved in `localStorage`; reset via Settings.
-- **Integration** – Completed habits can trigger notifications (see [[Notification Log]]).
+- **Integration** – Completed habits can trigger notifications (see [[Notification Log]]). Displays [[GitHub Integration]] activity for a unified productivity view.
 
 ## Related Notes
 - [[Task Manager]]
+- [[GitHub Integration]]
 - [[Notification Log]]
 - [[Settings Panel]]
 - [[Keyboard Shortcuts]]

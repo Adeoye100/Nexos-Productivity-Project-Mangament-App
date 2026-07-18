@@ -9,6 +9,8 @@ export interface Habit {
   targetFrequency: TargetFrequency;
   createdAt: string; // YYYY-MM-DD
   color?: string; // Hex or CSS color
+  reminderAt?: string; // HH:mm
+  notifiedToday?: string; // YYYY-MM-DD
 }
 
 export interface HabitEntry {
@@ -25,6 +27,7 @@ interface HabitsContextValue {
   deleteHabit: (id: string) => void;
   toggleEntry: (habitId: string, date: string) => void;
   getEntryForDate: (habitId: string, date: string) => HabitEntry | undefined;
+  updateHabit: (id: string, updates: Partial<Habit>) => void;
 }
 
 const HabitsContext = createContext<HabitsContextValue | null>(null);
@@ -130,8 +133,12 @@ export function HabitsProvider({ children }: { children: ReactNode }) {
     return entries.find(e => e.habitId === habitId && e.date === date);
   }, [entries]);
 
+  const updateHabit = useCallback((id: string, updates: Partial<Habit>) => {
+    setHabits(prev => prev.map(h => h.id === id ? { ...h, ...updates } : h));
+  }, []);
+
   return (
-    <HabitsContext.Provider value={{ habits, entries, addHabit, deleteHabit, toggleEntry, getEntryForDate }}>
+    <HabitsContext.Provider value={{ habits, entries, addHabit, deleteHabit, toggleEntry, getEntryForDate, updateHabit }}>
       {children}
     </HabitsContext.Provider>
   );

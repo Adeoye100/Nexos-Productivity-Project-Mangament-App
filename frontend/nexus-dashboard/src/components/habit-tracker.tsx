@@ -1,12 +1,13 @@
-import { useState, useMemo, useCallback, useRef } from "react"
+import { useState, useMemo, useCallback, useRef, useEffect } from "react"
 import { useVimNavigation } from "@/hooks/use-vim-navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Flame, Trophy, Plus, Trash2, Lock, Unlock } from "lucide-react"
+import { Flame, Trophy, Plus, Trash2, Lock, Unlock, Bell, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useHabits } from "@/context/habits-context"
+import { useNotifications } from "@/context/notifications-context"
 
 // ── Date helpers ──────────────────────────────────────────────────────────────
 const toDs = (d: Date) => d.toISOString().split("T")[0]
@@ -117,7 +118,8 @@ interface TipState {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export function HabitTracker() {
-  const { habits, entries, addHabit, deleteHabit, toggleEntry, getEntryForDate } = useHabits()
+  const { habits, entries, addHabit, deleteHabit, toggleEntry, getEntryForDate, updateHabit } = useHabits()
+  const { addNotification } = useNotifications()
 
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
   const [editMode,    setEditMode]    = useState(false)
@@ -127,6 +129,7 @@ export function HabitTracker() {
   const [newCategory, setNewCategory] = useState("")
   const [newFreq,     setNewFreq]     = useState<"daily" | "weekly" | "custom">("daily")
   const [newColor,    setNewColor]    = useState("")
+  const [newReminder, setNewReminder] = useState("")
 
   // ── Grid (static) ───────────────────────────────────────────────────────────
   const grid = useMemo(() => buildGrid(), [])
@@ -220,10 +223,41 @@ export function HabitTracker() {
       name: newName.trim(),
       category: newCategory.trim() || undefined,
       targetFrequency: newFreq,
-      color: newColor.trim() || undefined
+      color: newColor.trim() || undefined,
+      reminderAt: newReminder || undefined
     })
-    setNewName(""); setNewCategory(""); setNewFreq("daily"); setNewColor(""); setShowAddForm(false)
+    setNewName(""); setNewCategory(""); setNewFreq("daily"); setNewColor(""); setNewReminder(""); setShowAddForm(false)
   }
+
+  // Habit Notification Checker
+  useEffect(() => {
+    const check = () => {
+      const now = new Date()
+      const todayDs = toDs(now)
+      const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0')
+
+      habits.forEach(habit => {
+        if (habit.reminderAt && habit.notifiedToday !== todayDs) {
+          // Check if habit is already completed today
+          const isCompletedToday = entries.some(e => e.habitId === habit.id && e.date === todayDs && e.completed)
+          if (isCompletedToday) return
+
+          if (currentTime >= habit.reminderAt) {
+            addNotification({
+              type: "task_due", 
+              title: `Habit reminder: ${habit.name}`,
+              message: `Time to complete your habit: ${habit.name}`,
+            })
+            updateHabit(habit.id, { notifiedToday: todayDs })
+          }
+        }
+      })
+    }
+
+    const interval = setInterval(check, 60000) // Check every minute
+    check() // Initial check
+    return () => clearInterval(interval)
+  }, [habits, entries, addNotification, updateHabit])
 
   const today      = toDs(todayDate())
   const todayLabel = new Date().toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })
@@ -560,6 +594,18 @@ export function HabitTracker() {
                       {f.charAt(0).toUpperCase() + f.slice(1)}
                     </button>
                   ))}
+                </div>
+                <div className="flex gap-2">
+                  <div className="flex items-center gap-2 bg-background/50 border border-border rounded-lg px-3 flex-1">
+                    <Clock className="w-4 h-4 text-muted-foreground" />
+                    <Input
+                      type="time"
+                      value={newReminder}
+                      onChange={e => setNewReminder(e.target.value)}
+                      className="border-none bg-transparent focus-visible:ring-0 h-9 text-xs"
+                      title="Reminder time"
+                    />
+                  </div>
                 </div>
                 <Button
                   className="w-full rounded-lg"

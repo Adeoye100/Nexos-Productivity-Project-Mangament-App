@@ -12,6 +12,10 @@ Centralised settings for user profile, notifications, data management, and app�
 ### Preferences
 - **Notifications Toggle** – Enable/disable browser notifications (used for task due/overdue/reminder, AI reply, etc.). Stored as `notifications` boolean.
   - When turned off, existing permission is not revoked; new requests are suppressed.
+- **GitHub Integration** – Configure your [[GitHub Integration]].
+  - **Token** – Personal Access Token (stored encrypted).
+  - **Repository** – `username/repo` format.
+  - **Test Connection** – Verify credentials before saving.
 - Additional preference toggles can be added here (theme, sound, etc.).
 
 ### Actions
@@ -29,7 +33,7 @@ Centralised settings for user profile, notifications, data management, and app�
 - Reminds users that all data is stored locally in the browser; no data is sent to external servers.
 
 ## Persistence
-All settings are stored as plain strings in `window.localStorage`. The component reads them on mount via `useEffect` and writes them on each change or on explicit Save.
+All settings are stored in `window.localStorage`. Sensitive data like GitHub tokens are encrypted before storage (see [[Security & Privacy]]).
 
 ## Accessibility
 - Form inputs have associated `<label>` elements.
@@ -37,6 +41,8 @@ All settings are stored as plain strings in `window.localStorage`. The component
 - The modal (if used) traps focus and returns it to the trigger on close.
 
 ## Related Notes
+- [[GitHub Integration]]
+- [[Security & Privacy]]
 - [[Keyboard Shortcuts]] (shortcut to open Settings: `Ctrl`+`Shift`+`S`)
 - [[Notification Log]]
 - [[Task Manager]]

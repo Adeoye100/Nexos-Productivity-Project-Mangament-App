@@ -72,11 +72,16 @@ function SettingsPage() {
   );
 }
 
+import { GitHubActivity } from "@/components/github-activity";
+
 function HabitsPage() {
   return (
     <main className="min-h-screen bg-background">
       <Navigation />
-      <HabitTracker />
+      <div className="pt-24 px-4 container mx-auto space-y-8 pb-28 md:pb-12">
+        <GitHubActivity />
+        <HabitTracker />
+      </div>
     </main>
   );
 }

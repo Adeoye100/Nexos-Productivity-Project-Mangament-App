@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import {
   Trash2, Edit2, Check, X,
-  ArrowUp, ArrowRight, ArrowDown, Calendar, Bell, MoreVertical
+  ArrowUp, ArrowRight, ArrowDown, Calendar, Bell, MoreVertical, Github, ExternalLink
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -104,13 +104,20 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
                 onClick={(e) => e.stopPropagation()}
               />
             ) : (
-              <p className={cn(
-                "font-semibold leading-snug break-words",
-                isBoard ? "text-sm text-zinc-100" : "text-base text-foreground",
-                task.completed && "line-through text-muted-foreground"
-              )}>
-                {task.title}
-              </p>
+              <div className="flex flex-col gap-0.5">
+                <p className={cn(
+                  "font-semibold leading-snug break-words",
+                  isBoard ? "text-sm text-zinc-100" : "text-base text-foreground",
+                  task.completed && "line-through text-muted-foreground"
+                )}>
+                  {task.title}
+                </p>
+                {task.githubIssueId && (
+                  <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                    Synced from GitHub — mark complete here does not close the issue
+                  </p>
+                )}
+              </div>
             )}
           </div>
 
@@ -213,6 +220,24 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
           <Badge variant="secondary" className={cn("text-[10px] font-normal h-5 px-1.5", isBoard && "bg-zinc-800 text-zinc-300")}>
             {task.category}
           </Badge>
+
+          {task.githubIssueId && (
+            <Badge variant="outline" className="text-[10px] font-normal h-5 px-1.5 border-slate-700 bg-slate-900/50 text-slate-300 gap-1">
+              <Github className="w-2.5 h-2.5" />
+              GitHub
+              {task.githubUrl && (
+                <a 
+                  href={task.githubUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  onClick={(e) => e.stopPropagation()}
+                  className="hover:text-primary"
+                >
+                  <ExternalLink className="w-2.5 h-2.5 ml-0.5" />
+                </a>
+              )}
+            </Badge>
+          )}
 
           {isBoard && (
             <span className="ml-auto text-[10px] font-mono text-zinc-500">

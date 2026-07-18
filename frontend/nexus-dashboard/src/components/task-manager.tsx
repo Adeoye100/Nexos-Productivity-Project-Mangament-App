@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { TaskCard } from "./task-card"
 import { KanbanBoard } from "./kanban-board"
-import { LayoutList, LayoutDashboard } from "lucide-react"
+import { LayoutList, LayoutDashboard, Github, RefreshCw, Sparkles, Plus, Trash2, Calendar, Bell, ChevronLeft, ChevronRight, Check, Download } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
+import { getGitHubConfig } from "@/lib/github"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +25,7 @@ const categories = ["Personal", "Work", "Health", "Shopping", "Other"]
 const priorities: Priority[] = ["High", "Medium", "Low"]
 
 export function TaskManager() {
-  const { tasks, addTask, deleteTask, toggleComplete, updateTask } = useTasks()
+  const { tasks, addTask, deleteTask, toggleComplete, updateTask, refreshGitHubTasks } = useTasks()
   const { addNotification } = useNotifications()
 
   const [newTask, setNewTask] = useState("")
@@ -39,7 +40,15 @@ export function TaskManager() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false)
   const [settingReminderId, setSettingReminderId] = useState<string | null>(null)
   const [view, setView] = useState<"list" | "board">("list")
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const addTaskInputRef = useRef<HTMLInputElement>(null)
+  const githubConfig = getGitHubConfig()
+
+  const handleGitHubRefresh = async () => {
+    setIsRefreshing(true)
+    await refreshGitHubTasks()
+    setIsRefreshing(false)
+  }
 
   const filteredTasks = filterCategory ? tasks.filter(t => t.category === filterCategory) : tasks
   const sortedTasks = [...filteredTasks].sort((a, b) => {
@@ -223,6 +232,18 @@ export function TaskManager() {
           </p>
         </div>
         <div className="flex items-center gap-4">
+          {githubConfig && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleGitHubRefresh}
+              disabled={isRefreshing}
+              className="glass border-border/50 text-foreground"
+            >
+              <RefreshCw className={cn("w-4 h-4 mr-2", isRefreshing && "animate-spin")} />
+              Sync GitHub
+            </Button>
+          )}
           <Tabs value={view} onValueChange={(v) => setView(v as "list" | "board")} className="w-auto">
             <TabsList className="bg-background/30 backdrop-blur-sm border border-border/50">
               <TabsTrigger value="list" className="gap-2">

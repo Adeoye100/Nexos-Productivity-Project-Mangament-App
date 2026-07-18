@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { getGitHubConfig, fetchGitHubIssues, GITHUB_LABEL_MAPPING } from '@/lib/github';
+import { useToast } from '@/hooks/use-toast';
 
 export type Priority = "High" | "Medium" | "Low";
 export type TaskStatus = "not_started" | "in_progress" | "completed";
@@ -16,6 +18,8 @@ export interface Task {
   notified?: boolean;
   overdueNotified?: boolean;
   reminderNotified?: boolean;
+  githubIssueId?: number;
+  githubUrl?: string;
 }
 
 interface TasksContextValue {
@@ -24,11 +28,13 @@ interface TasksContextValue {
   deleteTask: (id: string) => void;
   toggleComplete: (id: string) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
+  refreshGitHubTasks: () => Promise<void>;
 }
 
 const TasksContext = createContext<TasksContextValue | null>(null);
 
 export function TasksProvider({ children }: { children: ReactNode }) {
+  const { toast } = useToast();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -120,8 +126,65 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const refreshGitHubTasks = useCallback(async () => {
+    const config = getGitHubConfig();
+    if (!config) return;
+
+    try {
+      const issues = await fetchGitHubIssues(config.token, config.repo);
+      
+      setTasks(prev => {
+        const existingGitHubIds = new Set(prev.filter(t => t.githubIssueId).map(t => t.githubIssueId));
+        const newTasks: Task[] = [];
+
+        issues.forEach(issue => {
+          if (!existingGitHubIds.has(issue.id)) {
+            // Find a mapping for labels
+            let category = "Work";
+            issue.labels.forEach(label => {
+              if (GITHUB_LABEL_MAPPING[label.name.toLowerCase()]) {
+                category = GITHUB_LABEL_MAPPING[label.name.toLowerCase()].category;
+              }
+            });
+
+            newTasks.push({
+              id: `github-${issue.id}`,
+              title: issue.title,
+              category,
+              priority: "Medium",
+              completed: issue.state === "closed",
+              status: issue.state === "closed" ? "completed" : "not_started",
+              createdAt: new Date(issue.updated_at),
+              githubIssueId: issue.id,
+              githubUrl: issue.html_url,
+              notified: false,
+              overdueNotified: false,
+              reminderNotified: false,
+            });
+          }
+        });
+
+        if (newTasks.length === 0) return prev;
+        
+        return [...newTasks, ...prev];
+      });
+
+      toast({
+        title: "GitHub Sync Complete",
+        description: `Synced tasks from ${config.repo}`,
+      });
+    } catch (error) {
+      console.error("GitHub sync failed", error);
+      toast({
+        title: "GitHub Sync Failed",
+        description: "Could not fetch issues from GitHub.",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
+
   return (
-    <TasksContext.Provider value={{ tasks, addTask, deleteTask, toggleComplete, updateTask }}>
+    <TasksContext.Provider value={{ tasks, addTask, deleteTask, toggleComplete, updateTask, refreshGitHubTasks }}>
       {children}
     </TasksContext.Provider>
   );
