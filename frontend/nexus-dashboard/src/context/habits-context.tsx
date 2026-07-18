@@ -146,6 +146,9 @@ export function HabitsProvider({ children }: { children: ReactNode }) {
 
 export function useHabits() {
   const ctx = useContext(HabitsContext);
-  if (!ctx) throw new Error('useHabits must be used within HabitsProvider');
+  if (!ctx) {
+    console.error('useHabits must be used within HabitsProvider');
+    throw new Error('useHabits must be used within HabitsProvider');
+  }
   return ctx;
 }
