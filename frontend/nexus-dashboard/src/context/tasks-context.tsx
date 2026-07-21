@@ -21,6 +21,7 @@ export interface Task {
   reminderNotified?: boolean;
   githubIssueId?: number;
   githubUrl?: string;
+  estimatedHours?: number;
 }
 
 interface TasksContextValue {
@@ -42,7 +43,7 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     return Object.values(tasksMap)
       .map(t => ({
         ...t,
-        createdAt: new Date(t.createdAt),
+        createdAt: t.createdAt ? new Date(t.createdAt) : new Date(),
         dueDate: t.dueDate ? new Date(t.dueDate) : undefined,
         reminderAt: t.reminderAt ? new Date(t.reminderAt) : undefined,
       }))
@@ -53,23 +54,38 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     const isMigrated = localStorage.getItem('tasks-migrated-to-yjs');
     if (isMigrated) return;
 
-    const raw = localStorage.getItem('nexus-tasks') || localStorage.getItem('tasks');
+    // Use multiple potential keys for old storage
+    const oldKeys = ['nexus-tasks', 'tasks', 'nexus_tasks', 'tasks-data', 'nexus-tasks-v1'];
+    let raw = null;
+    let usedKey = '';
+    for (const key of oldKeys) {
+      raw = localStorage.getItem(key);
+      if (raw) {
+        usedKey = key;
+        break;
+      }
+    }
+
     if (raw) {
       try {
         const parsed = JSON.parse(raw);
-        parsed.forEach((t: any) => {
-          const status = t.status || (t.completed ? 'completed' : 'not_started');
-          const task: Task = {
-            ...t,
-            status,
-            completed: status === 'completed',
-            createdAt: new Date(t.createdAt),
-            dueDate: t.dueDate ? new Date(t.dueDate) : undefined,
-            reminderAt: t.reminderAt ? new Date(t.reminderAt) : undefined,
-            priority: (t.priority as Priority) || 'Medium',
-          };
-          setTaskInMap(task.id, task);
-        });
+        if (Array.isArray(parsed)) {
+          parsed.forEach((t: any) => {
+            if (!t.id) return;
+            const status = t.status || (t.completed ? 'completed' : 'not_started');
+            const task: Task = {
+              ...t,
+              status,
+              completed: status === 'completed',
+              createdAt: t.createdAt ? new Date(t.createdAt) : new Date(),
+              dueDate: t.dueDate ? new Date(t.dueDate) : undefined,
+              reminderAt: t.reminderAt ? new Date(t.reminderAt) : undefined,
+              priority: (t.priority as Priority) || 'Medium',
+            };
+            setTaskInMap(task.id, task);
+          });
+          console.log(`Migrated tasks from ${usedKey} to Yjs`);
+        }
         localStorage.setItem('tasks-migrated-to-yjs', 'true');
       } catch (e) {
         console.error('Failed to migrate tasks', e);
@@ -114,6 +130,10 @@ export function TasksProvider({ children }: { children: ReactNode }) {
   const updateTask = useCallback((id: string, updates: Partial<Task>) => {
     const t = tasksMap[id];
     if (t) {
+      // Ensure we don't accidentally pass Date objects directly if they need to be strings in Yjs
+      // though Yjs can handle some objects, it's safer to keep them consistent.
+      // Actually Yjs Map will store whatever we give it.
+      
       const newStatus = updates.status !== undefined ? updates.status : t.status;
       const newCompleted = updates.completed !== undefined ? updates.completed : (updates.status !== undefined ? updates.status === 'completed' : t.completed);
 

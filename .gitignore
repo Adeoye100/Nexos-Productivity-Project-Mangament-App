@@ -1,5 +1,6 @@
 # See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 *.env
+*./home/ad/Documents/Nexos-present/Nexos-Productivity-Project-Mangament-App/backend/api-server/.env
 # compiled output
 dist
 tmp
@@ -47,3 +48,4 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+.
