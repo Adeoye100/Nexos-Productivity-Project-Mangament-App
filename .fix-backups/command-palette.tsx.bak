@@ -91,7 +91,6 @@ export function CommandPalette() {
                   title: "New Task",
                   category: "Personal",
                   priority: "Medium",
-                  completed: false,
                 })
                 setLocation("/tasks")
               })
@@ -105,8 +104,8 @@ export function CommandPalette() {
               runCommand(() => {
                 addHabit({
                   name: "New Habit",
+                  icon: "✨",
                   color: "blue",
-                  targetFrequency: "daily",
                 })
                 setLocation("/habits")
               })

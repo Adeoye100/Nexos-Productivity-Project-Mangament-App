@@ -3,9 +3,10 @@ import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { User, MapPin, Bell, Palette, Save, Github, RefreshCw, Unlink, ExternalLink, CheckCircle2, AlertCircle } from "lucide-react"
+import { User, MapPin, Bell, Palette, Save, Github, RefreshCw, Unlink, ExternalLink, CheckCircle2, AlertCircle, Share2 } from "lucide-react"
 import { encrypt, decrypt } from "@/lib/encryption"
 import { useToast } from "@/hooks/use-toast"
+import { PairingModal } from "./pairing-modal"
 
 export function SettingsPanel() {
   const { toast } = useToast()
@@ -168,6 +169,9 @@ export function SettingsPanel() {
             </div>
           </div>
         </Card>
+
+        {/* Cross-Device Sync */}
+        <PairingModal />
 
         {/* GitHub Integration */}
         <Card className="glass-strong p-6 border-primary/20">

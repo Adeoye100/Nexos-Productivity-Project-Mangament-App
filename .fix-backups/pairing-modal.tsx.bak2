@@ -1,0 +1,192 @@
+'use client';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
+import { Html5QrcodeScanner } from 'html5-qrcode';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { connectToRoom, disconnectFromRoom } from '../lib/sync/ydoc';
+import { Share2, Scan, Key, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+
+export const PairingModal = () => {
+  const [roomCode, setRoomCode] = useState<string>('');
+  const [inputCode, setInputCode] = useState<string>('');
+  const [status, setStatus] = useState<'idle' | 'pairing' | 'connected' | 'failed'>('idle');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+
+  const startPairing = async () => {
+    setIsGenerating(true);
+    try {
+      const response = await fetch('/api/sync/room-code', { method: 'POST' });
+      const data = await response.json();
+      setRoomCode(data.code);
+      const provider = connectToRoom(data.code);
+      setStatus('pairing');
+      
+      provider.on('status', ({ status }: { status: string }) => {
+        if (status === 'connected') {
+          setStatus('connected');
+          toast.success('Devices paired successfully!');
+        }
+      });
+    } catch (error) {
+      console.error('Failed to generate room code:', error);
+      toast.error('Failed to start pairing');
+      setStatus('failed');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const joinRoom = (code: string) => {
+    if (!code || code.length < 6) {
+      toast.error('Invalid room code');
+      return;
+    }
+    
+    setStatus('pairing');
+    const provider = connectToRoom(code);
+    
+    provider.on('status', ({ status }: { status: string }) => {
+      if (status === 'connected') {
+        setStatus('connected');
+        toast.success('Joined room successfully!');
+      } else if (status === 'disconnected') {
+         // Could be temporary, but if it stays disconnected it might be expired
+      }
+    });
+
+    // Timeout if not connected within 30 seconds
+    setTimeout(() => {
+      if (status === 'pairing') {
+        // We don't necessarily know it failed yet as WebRTC can be slow
+      }
+    }, 30000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.clear();
+      }
+    };
+  }, []);
+
+  const startScanner = () => {
+    if (!scannerRef.current) {
+      scannerRef.current = new Html5QrcodeScanner(
+        "reader",
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        /* verbose= */ false
+      );
+      scannerRef.current.render((decodedText) => {
+        joinRoom(decodedText);
+        if (scannerRef.current) {
+          scannerRef.current.clear();
+          scannerRef.current = null;
+        }
+      }, (error) => {
+        // silent error for scanner
+      });
+    }
+  };
+
+  return (
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Share2 className="w-5 h-5" />
+          Cross-Device Sync
+        </CardTitle>
+        <CardDescription>
+          Sync your tasks across phone and laptop
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {status === 'connected' ? (
+          <div className="flex flex-col items-center py-8 text-center gap-4">
+            <CheckCircle2 className="w-16 h-16 text-green-500" />
+            <div>
+              <h3 className="text-lg font-medium">Connected</h3>
+              <p className="text-sm text-muted-foreground">Your devices are now syncing in real-time.</p>
+            </div>
+            <Button variant="outline" onClick={() => { disconnectFromRoom(); setStatus('idle'); setRoomCode(''); }}>
+              Disconnect
+            </Button>
+          </div>
+        ) : (
+          <Tabs defaultValue="start" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="start">Start Pairing</TabsTrigger>
+              <TabsTrigger value="join">Join</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="start" className="flex flex-col items-center gap-4 py-4">
+              {!roomCode ? (
+                <Button onClick={startPairing} disabled={isGenerating} className="w-full">
+                  {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Generate Pairing Code
+                </Button>
+              ) : (
+                <>
+                  <div className="bg-white p-4 rounded-lg">
+                    <QRCodeSVG value={roomCode} size={200} />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground mb-1">Room Code</p>
+                    <code className="text-2xl font-bold tracking-widest">{roomCode}</code>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-blue-500 animate-pulse">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Waiting for peer...
+                  </div>
+                </>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="join" className="flex flex-col gap-4 py-4">
+              <div id="reader" className="overflow-hidden rounded-lg"></div>
+              
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Or enter code manually
+                  </span>
+                </div>
+              </div>
+              
+              <div className="flex gap-2">
+                <Input 
+                  placeholder="8-character code" 
+                  value={inputCode}
+                  onChange={(e) => setInputCode(e.target.value.toUpperCase())}
+                  maxLength={8}
+                />
+                <Button onClick={() => joinRoom(inputCode)}>Join</Button>
+              </div>
+              
+              <Button variant="outline" onClick={startScanner} className="w-full">
+                <Scan className="mr-2 h-4 w-4" />
+                Scan QR Code
+              </Button>
+            </TabsContent>
+          </Tabs>
+        )}
+
+        {status === 'failed' && (
+          <div className="mt-4 p-3 bg-red-100 border border-red-200 rounded-md flex items-center gap-2 text-red-700 text-sm">
+            <XCircle className="w-4 h-4" />
+            Connection failed. Please try again.
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};

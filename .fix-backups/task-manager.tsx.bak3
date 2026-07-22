@@ -39,7 +39,6 @@ export function TaskManager() {
   const [aiSuggestion, setAiSuggestion] = useState("")
   const [notificationsEnabled, setNotificationsEnabled] = useState(false)
   const [settingReminderId, setSettingReminderId] = useState<string | null>(null)
-  const [reminderInput, setReminderInput] = useState<string>("")
   const [view, setView] = useState<"list" | "board">("list")
   const [isRefreshing, setIsRefreshing] = useState(false)
   const addTaskInputRef = useRef<HTMLInputElement>(null)

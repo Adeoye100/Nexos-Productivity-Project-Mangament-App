@@ -106,7 +106,6 @@ export function CommandPalette() {
                 addHabit({
                   name: "New Habit",
                   color: "blue",
-                  targetFrequency: "daily",
                 })
                 setLocation("/habits")
               })
