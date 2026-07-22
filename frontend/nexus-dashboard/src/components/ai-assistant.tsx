@@ -92,7 +92,7 @@ export function AIAssistant() {
             priority: t.priority,
             category: t.category,
             completed: t.completed,
-            dueDate: t.dueDate?.toISOString(),
+            dueDate: (t.dueDate && !isNaN(t.dueDate.getTime())) ? t.dueDate.toISOString() : undefined,
           })),
         }),
       })
@@ -152,7 +152,8 @@ export function AIAssistant() {
         title: "AI Assistant replied",
         message: displayText.slice(0, 80) + (displayText.length > 80 ? "…" : ""),
       })
-    } catch {
+    } catch (err) {
+      console.error("[AI Assistant] fetch failed:", err)
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",

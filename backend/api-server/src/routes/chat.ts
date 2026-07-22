@@ -6,7 +6,7 @@ const router = Router();
 const AI_PROVIDER = process.env.AI_PROVIDER || "gemini";
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-1.5-flash";
 const OPENROUTER_MODEL =
-  process.env.OPENROUTER_MODEL || "google/gemini-2.0-flash-001";
+  process.env.OPENROUTER_MODEL || "google/gemini-3.5-flash-lite";
 
 interface TaskSummary {
   id: string;
@@ -95,6 +95,7 @@ router.post("/chat", async (req, res) => {
           body: JSON.stringify({
             model: OPENROUTER_MODEL,
             messages: [{ role: "system", content: systemPrompt }, ...history],
+            max_tokens: 1024,
           }),
         },
       );
@@ -165,7 +166,7 @@ router.post("/chat", async (req, res) => {
       res.json({ message: text });
     }
   } catch (error) {
-    logger.error({ error }, "/api/chat error");
+    logger.error({ err: error }, "/api/chat error");
     res.status(500).json({ error: "Failed to generate response" });
   }
 });
