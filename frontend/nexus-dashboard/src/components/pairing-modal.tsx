@@ -8,7 +8,7 @@ import { Input } from './ui/input';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { connectToRoom, disconnectFromRoom } from '../lib/sync/ydoc';
-import { Share2, Scan, Key, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { Share2, Scan, Key, CheckCircle2, XCircle, Loader2, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const PairingModal = () => {
@@ -16,6 +16,7 @@ export const PairingModal = () => {
   const [inputCode, setInputCode] = useState<string>('');
   const [status, setStatus] = useState<'idle' | 'pairing' | 'connected' | 'failed'>('idle');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [copied, setCopied] = useState(false);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
   const startPairing = async () => {
@@ -49,6 +50,7 @@ export const PairingModal = () => {
     }
     
     setStatus('pairing');
+    setRoomCode(code);
     const provider = connectToRoom(code);
     
     provider.on('status', ({ connected }: { connected: boolean }) => {
@@ -66,6 +68,18 @@ export const PairingModal = () => {
         // We don't necessarily know it failed yet as WebRTC can be slow
       }
     }, 30000);
+  };
+
+  const handleCopy = async () => {
+    if (!roomCode) return;
+    try {
+      await navigator.clipboard.writeText(roomCode);
+      setCopied(true);
+      toast.success('Code copied to clipboard!');
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      toast.error('Failed to copy code');
+    }
   };
 
   useEffect(() => {
@@ -114,6 +128,31 @@ export const PairingModal = () => {
               <h3 className="text-lg font-medium">Connected</h3>
               <p className="text-sm text-muted-foreground">Your devices are now syncing in real-time.</p>
             </div>
+
+            {roomCode && (
+              <div className="w-full mt-2 p-4 bg-secondary/50 rounded-xl border border-border flex flex-col items-center gap-3">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Your pairing code
+                </p>
+                <div 
+                  className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={handleCopy}
+                >
+                  <code className="text-3xl font-mono font-bold tracking-[0.3em] text-primary">
+                    {roomCode}
+                  </code>
+                  <div className="p-2 bg-background rounded-md border border-border shadow-sm">
+                    {copied ? (
+                      <Check className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <Copy className="w-4 h-4 text-muted-foreground" />
+                    )}
+                  </div>
+                </div>
+                {copied && <span className="text-[10px] text-green-600 font-medium animate-in fade-in zoom-in duration-200">Copied to clipboard!</span>}
+              </div>
+            )}
+
             <Button variant="outline" onClick={() => { disconnectFromRoom(); setStatus('idle'); setRoomCode(''); }}>
               Disconnect
             </Button>

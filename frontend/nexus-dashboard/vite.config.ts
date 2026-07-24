@@ -130,6 +130,10 @@ export default defineConfig({
         target: 'http://localhost:4000',
         changeOrigin: true,
       },
+      '/signaling': {
+        target: 'ws://localhost:4444',
+        ws: true,
+      },
     },
   },
   preview: {
@@ -138,6 +142,10 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:4000',
         changeOrigin: true,
+      },
+      '/signaling': {
+        target: 'ws://localhost:4444',
+        ws: true,
       },
     },
   },
