@@ -1,6 +1,7 @@
 {
   "name": "@workspace/api-client-react",
   "version": "0.0.0",
+  "dev:signaling": "node node_modules/y-webrtc/bin/server.js --port 4444",
   "private": true,
   "type": "module",
   "exports": {

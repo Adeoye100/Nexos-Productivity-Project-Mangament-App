@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --config vite.config.ts --host 0.0.0.0",
+    "dev:signaling": "node node_modules/y-webrtc/bin/server.js --port 4444",
     "build": "vite build",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
