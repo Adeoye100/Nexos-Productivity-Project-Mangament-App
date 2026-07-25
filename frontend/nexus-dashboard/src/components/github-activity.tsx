@@ -150,13 +150,11 @@ export function GitHubActivity() {
                   key={i}
                   className={cn(
                     "w-[11px] h-[11px] rounded-[2px] transition-all duration-300",
-                    !c.ds ? "bg-transparent" :
-                    intensity === 0 ? "bg-foreground/5 hover:bg-foreground/10" :
-                    intensity === 1 ? "bg-emerald-500/30 hover:bg-emerald-500/50" :
-                    intensity === 2 ? "bg-emerald-500/50 hover:bg-emerald-500/70" :
-                    intensity === 3 ? "bg-emerald-500/70 hover:bg-emerald-500/90" :
-                    "bg-emerald-500 hover:bg-emerald-400"
+                    !c.ds ? "bg-transparent" : "hover:scale-[1.4] hover:z-10"
                   )}
+                  style={{
+                    backgroundColor: c.ds ? `var(--hm-${intensity})` : "transparent"
+                  }}
                   title={c.ds ? `${c.ds}: ${count} commits` : ""}
                 />
               )

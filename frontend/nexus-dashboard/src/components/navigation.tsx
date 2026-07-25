@@ -1,10 +1,11 @@
 import { useState } from "react"
-import { Cloud, CheckSquare, MessageSquare, Settings, Bell, LayoutGrid, Terminal } from "lucide-react"
+import { Cloud, CheckSquare, MessageSquare, Settings, Bell, LayoutGrid, Terminal, Palette } from "lucide-react"
 import { Link, useLocation } from "wouter"
 import { cn } from "@/lib/utils"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { ThemeSelector } from "@/components/theme-selector"
 import { useNotifications } from "@/context/notifications-context"
 import { NotificationLog } from "@/components/notification-log"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 export function Navigation() {
   const [location] = useLocation()
@@ -74,7 +75,19 @@ export function Navigation() {
               </span>
             )}
           </button>
-          <ThemeToggle />
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-all duration-200"
+                aria-label="Theme settings"
+              >
+                <Palette className="w-5 h-5" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent side="bottom" align="end" className="w-64 p-2 glass-strong border-border/40">
+              <ThemeSelector />
+            </PopoverContent>
+          </Popover>
         </div>
       </nav>
 
@@ -115,9 +128,20 @@ export function Navigation() {
             )}
           </button>
 
-          <div className="flex flex-col items-center gap-0.5 px-2 py-1.5">
-            <ThemeToggle />
-          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-full text-muted-foreground hover:text-foreground transition-all duration-200 min-w-[44px]"
+                aria-label="Theme settings"
+              >
+                <Palette className="w-5 h-5" />
+                <span className="text-[9px] font-medium leading-none">Theme</span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent side="top" align="center" className="w-64 p-2 glass-strong border-border/40 mb-2">
+              <ThemeSelector />
+            </PopoverContent>
+          </Popover>
         </div>
       </nav>
 

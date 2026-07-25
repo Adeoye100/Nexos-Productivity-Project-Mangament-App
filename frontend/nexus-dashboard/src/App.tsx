@@ -116,7 +116,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="system" themes={['light', 'dark', 'warm']} enableSystem disableTransitionOnChange>
           <YjsProvider>
             <TasksProvider>
               <NotificationsProvider>

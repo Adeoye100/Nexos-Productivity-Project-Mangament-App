@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Flame, Trophy, Plus, Trash2, Lock, Unlock, Bell, Clock } from "lucide-react"
+import DeleteButton from "@/components/ui/delete-button"
+import AddButton from "@/components/ui/add-button"
 import { cn } from "@/lib/utils"
 import { useHabits } from "@/context/habits-context"
 import { useNotifications } from "@/context/notifications-context"
@@ -607,13 +609,11 @@ export function HabitTracker() {
                     />
                   </div>
                 </div>
-                <Button
-                  className="w-full rounded-lg"
+                <AddButton 
+                  onClick={handleAddHabit} 
+                  text="Add Habit"
                   disabled={!newName.trim()}
-                  onClick={handleAddHabit}
-                >
-                  Add Habit
-                </Button>
+                />
               </div>
             )}
 
@@ -647,13 +647,7 @@ export function HabitTracker() {
                           </span>
                         </div>
                       </div>
-                      <button
-                        onClick={() => deleteHabit(h.id)}
-                        className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100"
-                        aria-label={`Delete ${h.name}`}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <DeleteButton onClick={() => deleteHabit(h.id)} />
                     </div>
                   )
                 })}

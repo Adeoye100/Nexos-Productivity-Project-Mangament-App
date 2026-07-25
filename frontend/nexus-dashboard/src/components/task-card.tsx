@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils"
 import type { Task } from "@/context/tasks-context"
 import { useTasks } from "@/context/tasks-context"
+import DeleteButton from "@/components/ui/delete-button"
 
 interface TaskCardProps {
   task: Task
@@ -157,9 +158,7 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
                   <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); startEdit(); }} className={cn("h-7 w-7 p-0 text-muted-foreground hover:text-foreground", isBoard && "hover:bg-zinc-800")} title="Edit">
                     <Edit2 className="w-3.5 h-3.5" />
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }} className={cn("h-7 w-7 p-0 text-muted-foreground hover:text-destructive", isBoard && "hover:bg-zinc-800")} title="Delete">
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
+                  <DeleteButton onClick={() => deleteTask(task.id)} />
                 </div>
 
                 {!isBoard && (

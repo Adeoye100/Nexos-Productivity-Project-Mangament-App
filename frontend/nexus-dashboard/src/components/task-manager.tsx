@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { TaskCard } from "./task-card"
 import { KanbanBoard } from "./kanban-board"
 import { LayoutList, LayoutDashboard, Github, RefreshCw, Sparkles, Plus, Trash2, Calendar, Bell, ChevronLeft, ChevronRight, Check, Download } from "lucide-react"
+import AddButton from "@/components/ui/add-button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { getGitHubConfig } from "@/lib/github"
@@ -300,13 +301,10 @@ export function TaskManager() {
                 onKeyDown={e => e.key === "Enter" && handleAddTask()}
                 className="flex-1 bg-background/30 border-border/50 backdrop-blur-sm text-foreground placeholder:text-muted-foreground"
               />
-              <Button
-                onClick={handleAddTask}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl font-semibold md:w-auto w-full"
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Add Task
-              </Button>
+              <AddButton 
+                onClick={handleAddTask} 
+                text="Add Task"
+              />
             </div>
 
             <div className="flex flex-wrap gap-2 items-center">

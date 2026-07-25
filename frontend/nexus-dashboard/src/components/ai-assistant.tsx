@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Send, Bot, User, Sparkles, Trash2, Loader2 } from "lucide-react"
+import SendButton from "@/components/ui/send-button"
 import { cn } from "@/lib/utils"
 import { useTasks } from "@/context/tasks-context"
 import { useNotifications } from "@/context/notifications-context"
@@ -265,24 +266,24 @@ export function AIAssistant() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Area */}
         <div className="border-t border-border p-4 bg-background/30 backdrop-blur-md">
-          <form onSubmit={handleSubmit} className="relative">
+          <form onSubmit={handleSubmit} className="flex gap-2 items-center">
             <Input
               placeholder="Ask me anything, or say 'add task: …'"
               value={input}
               onChange={e => setInput(e.target.value)}
-              className="w-full pl-4 pr-12 py-6 bg-background/50 border-primary/20 focus:border-primary/50 rounded-xl shadow-inner transition-all"
+              className="flex-1 py-6 bg-background/50 border-primary/20 focus:border-primary/50 rounded-xl shadow-inner transition-all"
               disabled={isLoading}
             />
-            <Button
-              type="submit"
-              size="icon"
-              disabled={isLoading || !input.trim()}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors w-8 h-8 rounded-lg"
-            >
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            </Button>
+            <SendButton 
+              onClick={() => {
+                if (!isLoading && input.trim()) {
+                  const fakeEvent = { preventDefault: () => {} } as React.FormEvent<HTMLFormElement>;
+                  handleSubmit(fakeEvent);
+                }
+              }} 
+              disabled={isLoading || !input.trim()} 
+            />
           </form>
         </div>
       </Card>

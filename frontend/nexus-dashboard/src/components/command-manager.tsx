@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Search, Copy, Check, Plus, Trash2, Terminal, Tag } from "lucide-react"
+import DeleteButton from "@/components/ui/delete-button"
+import AddButton from "@/components/ui/add-button"
 import { cn } from "@/lib/utils"
 import { useCommands, CommandSnippet } from "@/context/commands-context"
 import { toast } from "@/hooks/use-toast"
@@ -165,9 +167,7 @@ export function CommandManager() {
               />
             </div>
             <div className="md:col-span-2 pt-2">
-              <Button onClick={handleAddCommand} className="w-full md:w-auto px-8">
-                Save Command
-              </Button>
+              <AddButton onClick={handleAddCommand} text="Save Command" />
             </div>
           </div>
         </Card>
@@ -230,14 +230,7 @@ export function CommandManager() {
                     )}
                   </div>
                   {cmd.isCustom && (
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => deleteCommand(cmd.id)}
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 -mt-1 -mr-1"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <DeleteButton onClick={() => deleteCommand(cmd.id)} />
                   )}
                 </div>
 
