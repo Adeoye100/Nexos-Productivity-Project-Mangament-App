@@ -18,7 +18,13 @@ export function ThemeSelector() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center p-1">
+        <div className="relative flex items-center bg-foreground/5 backdrop-blur-md border border-border/40 rounded-full p-1 shadow-inner w-full max-w-[240px] h-10 animate-pulse" />
+      </div>
+    );
+  }
 
   const activeIndex = themes.findIndex((t) => t.id === theme);
   // Default to 0 if theme is 'system' or something else not in our list

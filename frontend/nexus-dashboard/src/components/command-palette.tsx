@@ -6,6 +6,7 @@ import {
   Settings,
   LayoutGrid,
   Plus,
+  Flame,
   Moon,
   Sun,
   Laptop,
@@ -125,6 +126,10 @@ export function CommandPalette() {
           <CommandItem onSelect={() => runCommand(() => setTheme("dark"))}>
             <Moon className="mr-2 h-4 w-4" />
             <span>Dark</span>
+          </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => setTheme("warm"))}>
+            <Flame className="mr-2 h-4 w-4" />
+            <span>Warm</span>
           </CommandItem>
           <CommandItem onSelect={() => runCommand(() => setTheme("system"))}>
             <Laptop className="mr-2 h-4 w-4" />
