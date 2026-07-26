@@ -9,6 +9,7 @@ import { YjsProvider } from '@/lib/sync/YjsProvider';
 import { TasksProvider } from '@/context/tasks-context';
 import { NotificationsProvider } from '@/context/notifications-context';
 import { HabitsProvider } from '@/context/habits-context';
+import { PromptsProvider } from '@/context/prompts-context';
 import { CommandsProvider } from '@/context/commands-context';
 import { CommandPalette } from '@/components/command-palette';
 import { ShortcutsHelp } from '@/components/shortcuts-help';
@@ -121,15 +122,17 @@ function App() {
             <TasksProvider>
               <NotificationsProvider>
                 <HabitsProvider>
-                  <CommandsProvider>
-                    <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-                      <Router />
-                    </WouterRouter>
-                    <Toaster />
-                    <SonnerToaster richColors closeButton />
-                    <CommandPalette />
-                    <ShortcutsHelp />
-                  </CommandsProvider>
+                  <PromptsProvider>
+                    <CommandsProvider>
+                      <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+                        <Router />
+                      </WouterRouter>
+                      <Toaster />
+                      <SonnerToaster richColors closeButton />
+                      <CommandPalette />
+                      <ShortcutsHelp />
+                    </CommandsProvider>
+                  </PromptsProvider>
                 </HabitsProvider>
               </NotificationsProvider>
             </TasksProvider>

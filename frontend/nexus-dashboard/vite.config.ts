@@ -131,8 +131,9 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/signaling': {
-        target: 'ws://localhost:4444',
+        target: 'ws://localhost:4000',
         ws: true,
+        changeOrigin: true,
       },
     },
   },
@@ -144,8 +145,9 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/signaling': {
-        target: 'ws://localhost:4444',
+        target: 'ws://localhost:4000',
         ws: true,
+        changeOrigin: true,
       },
     },
   },

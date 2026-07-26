@@ -3,11 +3,16 @@ import { useState, useRef, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Send, Bot, User, Sparkles, Trash2, Loader2 } from "lucide-react"
+import { Send, Bot, User, Sparkles, Trash2, Loader2, BookmarkPlus, Library } from "lucide-react"
 import SendButton from "@/components/ui/send-button"
 import { cn } from "@/lib/utils"
 import { useTasks } from "@/context/tasks-context"
 import { useNotifications } from "@/context/notifications-context"
+import { usePrompts } from "@/context/prompts-context"
+import { PromptLibrary } from "@/components/prompt-library"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 type Message = {
   id: string
@@ -37,8 +42,10 @@ const TypingIndicator = () => (
 export function AIAssistant() {
   const { tasks, addTask, toggleComplete } = useTasks()
   const { addNotification } = useNotifications()
+  const { addPrompt } = usePrompts()
 
   const [input, setInput] = useState("")
+  const [isLibraryOpen, setIsLibraryOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>(() => {
     try {
       const saved = localStorage.getItem(CHAT_STORAGE_KEY)
@@ -64,6 +71,15 @@ export function AIAssistant() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages, isLoading])
+
+  // Check for pending prompt from command palette
+  useEffect(() => {
+    const pending = localStorage.getItem('pending-prompt');
+    if (pending) {
+      setInput(pending);
+      localStorage.removeItem('pending-prompt');
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -178,6 +194,20 @@ export function AIAssistant() {
     localStorage.removeItem(CHAT_STORAGE_KEY)
   }
 
+  const handleSaveAsPrompt = () => {
+    if (!input.trim()) return
+    addPrompt({
+      title: input.slice(0, 30) + (input.length > 30 ? "..." : ""),
+      body: input,
+      category: "Saved"
+    })
+    addNotification({
+      type: "ai_reply",
+      title: "Prompt Saved",
+      message: "The current input has been saved to your library."
+    })
+  }
+
   const quickPrompts = [
     "What tasks are due soon?",
     "Add a High priority task: review budget",
@@ -212,8 +242,8 @@ export function AIAssistant() {
       </div>
 
       {/* Chat Container */}
-      <Card className="glass-strong border-primary/20 mb-4 shadow-lg rounded-2xl overflow-hidden flex flex-col h-[600px]">
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+      <Card className="glass-strong border-primary/20 mb-4 shadow-lg rounded-2xl overflow-hidden flex flex-col h-[calc(100vh-16rem)] min-h-[400px] md:h-[600px]">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
           {messages.map(message => (
             <div
               key={message.id}
@@ -236,7 +266,15 @@ export function AIAssistant() {
                     : "bg-card/80 border border-border text-foreground rounded-bl-sm",
                 )}
               >
-                <p className="leading-relaxed font-medium whitespace-pre-wrap">{message.content}</p>
+                {message.role === "user" ? (
+                  <p className="leading-relaxed font-medium whitespace-pre-wrap">{message.content}</p>
+                ) : (
+                  <div className="prose prose-sm dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted/50 prose-pre:border prose-pre:border-border max-w-none text-foreground">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
+                )}
                 {message.createdAt && (
                   <p className="text-[10px] mt-2 opacity-70 text-right">
                     {message.createdAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
@@ -268,13 +306,41 @@ export function AIAssistant() {
 
         <div className="border-t border-border p-4 bg-background/30 backdrop-blur-md">
           <form onSubmit={handleSubmit} className="flex gap-2 items-center">
-            <Input
-              placeholder="Ask me anything, or say 'add task: …'"
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              className="flex-1 py-6 bg-background/50 border-primary/20 focus:border-primary/50 rounded-xl shadow-inner transition-all"
-              disabled={isLoading}
-            />
+            <Popover open={isLibraryOpen} onOpenChange={setIsLibraryOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="icon" className="shrink-0 border-primary/20 bg-background/50">
+                  <Library className="w-4 h-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-4" side="top" align="start">
+                <PromptLibrary onSelectPrompt={(body) => {
+                  setInput(body)
+                  setIsLibraryOpen(false)
+                }} />
+              </PopoverContent>
+            </Popover>
+
+            <div className="relative flex-1 flex items-center">
+              <Input
+                placeholder="Ask me anything, or say 'add task: …'"
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                className="pr-12 py-6 bg-background/50 border-primary/20 focus:border-primary/50 rounded-xl shadow-inner transition-all"
+                disabled={isLoading}
+              />
+              <Button 
+                type="button"
+                variant="ghost" 
+                size="icon" 
+                className="absolute right-2 text-muted-foreground hover:text-primary"
+                onClick={handleSaveAsPrompt}
+                disabled={!input.trim()}
+                title="Save as prompt"
+              >
+                <BookmarkPlus className="w-4 h-4" />
+              </Button>
+            </div>
+            
             <SendButton 
               onClick={() => {
                 if (!isLoading && input.trim()) {

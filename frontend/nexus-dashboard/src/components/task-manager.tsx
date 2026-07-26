@@ -307,46 +307,46 @@ export function TaskManager() {
               />
             </div>
 
-            <div className="flex flex-wrap gap-2 items-center">
-              <select
-                value={selectedCategory}
-                onChange={e => setSelectedCategory(e.target.value)}
-                className="px-4 py-2 rounded-xl bg-background/30 border border-border/50 text-foreground backdrop-blur-sm"
-              >
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-              <select
-                value={selectedPriority}
-                onChange={e => setSelectedPriority(e.target.value as Priority)}
-                className="px-4 py-2 rounded-xl bg-background/30 border border-border/50 text-foreground backdrop-blur-sm"
-              >
-                {priorities.map(p => (
-                  <option key={p} value={p}>{p} Priority</option>
-                ))}
-              </select>
-              <div className="flex items-center gap-2 bg-background/30 border border-border/50 rounded-xl px-3 backdrop-blur-sm">
-                <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                <Input
-                  type="datetime-local"
-                  value={newTaskDueDate}
-                  onChange={e => setNewTaskDueDate(e.target.value)}
-                  className="border-none bg-transparent focus-visible:ring-0 w-auto h-9 text-sm text-foreground"
-                  title="Due date"
-                />
-              </div>
-              <div className="flex items-center gap-2 bg-background/30 border border-border/50 rounded-xl px-3 backdrop-blur-sm">
-                <Bell className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                <Input
-                  type="datetime-local"
-                  value={newTaskReminder}
-                  onChange={e => setNewTaskReminder(e.target.value)}
-                  className="border-none bg-transparent focus-visible:ring-0 w-auto h-9 text-sm text-foreground"
-                  title="Remind me at"
-                />
-              </div>
-            </div>
+        <div className="flex flex-wrap gap-2 items-center">
+          <select
+            value={selectedCategory}
+            onChange={e => setSelectedCategory(e.target.value)}
+            className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-background/30 border border-border/50 text-foreground backdrop-blur-sm min-h-[44px]"
+          >
+            {categories.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+          <select
+            value={selectedPriority}
+            onChange={e => setSelectedPriority(e.target.value as Priority)}
+            className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-background/30 border border-border/50 text-foreground backdrop-blur-sm min-h-[44px]"
+          >
+            {priorities.map(p => (
+              <option key={p} value={p}>{p} Priority</option>
+            ))}
+          </select>
+          <div className="flex-1 md:flex-none flex items-center gap-2 bg-background/30 border border-border/50 rounded-xl px-3 backdrop-blur-sm min-h-[44px]">
+            <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            <Input
+              type="datetime-local"
+              value={newTaskDueDate}
+              onChange={e => setNewTaskDueDate(e.target.value)}
+              className="border-none bg-transparent focus-visible:ring-0 w-full md:w-auto h-9 text-sm text-foreground"
+              title="Due date"
+            />
+          </div>
+          <div className="flex-1 md:flex-none flex items-center gap-2 bg-background/30 border border-border/50 rounded-xl px-3 backdrop-blur-sm min-h-[44px]">
+            <Bell className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            <Input
+              type="datetime-local"
+              value={newTaskReminder}
+              onChange={e => setNewTaskReminder(e.target.value)}
+              className="border-none bg-transparent focus-visible:ring-0 w-full md:w-auto h-9 text-sm text-foreground"
+              title="Remind me at"
+            />
+          </div>
+        </div>
           </div>
         </Card>
       </div>

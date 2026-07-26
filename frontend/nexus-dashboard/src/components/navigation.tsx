@@ -17,7 +17,7 @@ export function Navigation() {
     { href: "/tasks",    label: "Tasks",         mobileLabel: "Tasks",    icon: CheckSquare },
     { href: "/assistant",label: "AI Assistant",  mobileLabel: "AI",       icon: MessageSquare },
     { href: "/habits",   label: "Habits",        mobileLabel: "Habits",   icon: LayoutGrid },
-    { href: "/commands", label: "Commands",      mobileLabel: "CLI",      icon: Terminal },
+    { href: "/commands", label: "Commands",      mobileLabel: "Prompts",   icon: Terminal },
     { href: "/settings", label: "Settings",      mobileLabel: "Settings", icon: Settings },
   ]
 
@@ -102,10 +102,10 @@ export function Navigation() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-full transition-all duration-200 min-w-[44px]",
+                  "flex flex-col items-center gap-1 px-1.5 py-2.5 rounded-xl transition-all duration-200 min-w-[48px] active:scale-95 touch-manipulation",
                   isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-primary text-primary-foreground shadow-lg"
+                    : "text-muted-foreground hover:text-foreground active:bg-foreground/10"
                 )}
               >
                 <Icon className="w-5 h-5" />
@@ -116,7 +116,7 @@ export function Navigation() {
 
           <button
             onClick={handleBellClick}
-            className="relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-full text-muted-foreground hover:text-foreground transition-all duration-200"
+            className="relative flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl text-muted-foreground hover:text-foreground active:bg-foreground/10 transition-all duration-200 min-w-[48px] active:scale-95 touch-manipulation"
             aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
           >
             <Bell className="w-5 h-5" />
@@ -131,14 +131,14 @@ export function Navigation() {
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-full text-muted-foreground hover:text-foreground transition-all duration-200 min-w-[44px]"
+                className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl text-muted-foreground hover:text-foreground active:bg-foreground/10 transition-all duration-200 min-w-[48px] active:scale-95 touch-manipulation"
                 aria-label="Theme settings"
               >
                 <Palette className="w-5 h-5" />
                 <span className="text-[9px] font-medium leading-none">Theme</span>
               </button>
             </PopoverTrigger>
-            <PopoverContent side="top" align="center" className="w-64 p-2 glass-strong border-border/40 mb-2">
+            <PopoverContent side="top" align="center" className="w-[calc(100vw-2rem)] max-w-64 p-2 glass-strong border-border/40 mb-2">
               <ThemeSelector />
             </PopoverContent>
           </Popover>

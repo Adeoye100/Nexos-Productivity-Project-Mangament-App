@@ -15,6 +15,7 @@ import { useLocation } from "wouter"
 import { useTheme } from "next-themes"
 import { useTasks } from "@/context/tasks-context"
 import { useHabits } from "@/context/habits-context"
+import { usePrompts } from "@/context/prompts-context"
 
 import {
   CommandDialog,
@@ -33,6 +34,7 @@ export function CommandPalette() {
   const { setTheme } = useTheme()
   const { addTask } = useTasks()
   const { addHabit } = useHabits()
+  const { prompts } = usePrompts()
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -117,6 +119,33 @@ export function CommandPalette() {
             <span>Add New Habit</span>
           </CommandItem>
         </CommandGroup>
+        <CommandSeparator />
+        {prompts.length > 0 && (
+          <>
+            <CommandGroup heading="Insert Prompt">
+              {prompts.map((prompt) => (
+                <CommandItem
+                  key={prompt.id}
+                  onSelect={() =>
+                    runCommand(() => {
+                      // We need a way to communicate back to the assistant component or just navigate
+                      // For now, let's navigate to assistant and we might need a global state for the input
+                      // But the requirement says "Clicking a saved prompt inserts its body into the AI Assistant's input"
+                      // Since we don't have a global input state, we can use a simple hack like localStorage or just navigate.
+                      // Actually, many apps use a query param or state for this.
+                      localStorage.setItem('pending-prompt', prompt.body);
+                      setLocation("/assistant");
+                    })
+                  }
+                >
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  <span>{prompt.title}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+            <CommandSeparator />
+          </>
+        )}
         <CommandSeparator />
         <CommandGroup heading="Theme">
           <CommandItem onSelect={() => runCommand(() => setTheme("light"))}>

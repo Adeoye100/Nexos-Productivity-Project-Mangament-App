@@ -110,8 +110,8 @@ export const PairingModal = () => {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
+    <Card className="w-full max-w-md mx-auto border-none md:border-solid shadow-none md:shadow-sm bg-transparent md:bg-card">
+      <CardHeader className="px-4 md:px-6">
         <CardTitle className="flex items-center gap-2">
           <Share2 className="w-5 h-5" />
           Cross-Device Sync
@@ -120,7 +120,7 @@ export const PairingModal = () => {
           Sync your tasks across phone and laptop
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 md:px-6">
         {status === 'connected' ? (
           <div className="flex flex-col items-center py-8 text-center gap-4">
             <CheckCircle2 className="w-16 h-16 text-green-500" />
