@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo } from 'react';
+import { useTasks, TaskStatus } from './tasks-context';
 
 export interface CommandSnippet {
   id: string;
@@ -13,6 +14,12 @@ interface CommandsContextValue {
   commands: CommandSnippet[];
   addCommand: (command: Omit<CommandSnippet, 'id' | 'isCustom'>) => CommandSnippet;
   deleteCommand: (id: string) => void;
+  aliases: AliasDefinition[];
+}
+
+export interface AliasDefinition {
+  pattern: RegExp;
+  handler: (args: string[]) => void;
 }
 
 const SEED_COMMANDS: CommandSnippet[] = [
@@ -84,8 +91,45 @@ export function CommandsProvider({ children }: { children: ReactNode }) {
     setCommands(prev => prev.filter(c => c.id !== id));
   }, []);
 
+  const { updateTask, addTask } = useTasks();
+
+  const aliases: AliasDefinition[] = useMemo(() => [
+    {
+      pattern: /^mv #(\S+) (\S+)$/,
+      handler: ([taskId, newStatus]) => {
+        const statusMap: Record<string, TaskStatus> = {
+          'not-started': 'not_started',
+          'in-progress': 'in_progress',
+          'completed': 'completed',
+          'todo': 'not_started',
+          'doing': 'in_progress',
+          'done': 'completed'
+        };
+        const status = statusMap[newStatus.toLowerCase()] || newStatus;
+        updateTask(taskId, { status: status as TaskStatus, completed: status === 'completed' });
+      }
+    },
+    {
+      pattern: /^done #(\S+)$/,
+      handler: ([taskId]) => {
+        updateTask(taskId, { status: 'completed', completed: true });
+      }
+    },
+    {
+      pattern: /^new task (.+)$/,
+      handler: ([title]) => {
+        addTask({
+          title,
+          category: "Personal",
+          priority: "Medium",
+          completed: false,
+        });
+      }
+    }
+  ], [updateTask, addTask]);
+
   return (
-    <CommandsContext.Provider value={{ commands, addCommand, deleteCommand }}>
+    <CommandsContext.Provider value={{ commands, addCommand, deleteCommand, aliases }}>
       {children}
     </CommandsContext.Provider>
   );

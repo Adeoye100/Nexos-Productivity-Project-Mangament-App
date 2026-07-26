@@ -16,6 +16,7 @@ import { useTheme } from "next-themes"
 import { useTasks } from "@/context/tasks-context"
 import { useHabits } from "@/context/habits-context"
 import { usePrompts } from "@/context/prompts-context"
+import { useCommands } from "@/context/commands-context"
 
 import {
   CommandDialog,
@@ -35,6 +36,8 @@ export function CommandPalette() {
   const { addTask } = useTasks()
   const { addHabit } = useHabits()
   const { prompts } = usePrompts()
+  const { aliases } = useCommands()
+  const [inputValue, setInputValue] = React.useState("")
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -48,6 +51,26 @@ export function CommandPalette() {
     return () => document.removeEventListener("keydown", down)
   }, [])
 
+  React.useEffect(() => {
+    if (!open) {
+      setInputValue("")
+    }
+  }, [open])
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && inputValue) {
+      for (const alias of aliases) {
+        const match = inputValue.match(alias.pattern)
+        if (match) {
+          e.preventDefault()
+          alias.handler(match.slice(1))
+          setOpen(false)
+          return
+        }
+      }
+    }
+  }
+
   const runCommand = React.useCallback((command: () => void) => {
     setOpen(false)
     command()
@@ -55,7 +78,12 @@ export function CommandPalette() {
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Type a command or search..." />
+      <CommandInput 
+        placeholder="Type a command or search..." 
+        value={inputValue}
+        onValueChange={setInputValue}
+        onKeyDown={handleKeyDown}
+      />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Navigation">
