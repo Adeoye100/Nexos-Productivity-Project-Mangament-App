@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode,
 import { getGitHubConfig, fetchGitHubIssues, GITHUB_LABEL_MAPPING } from '@/lib/github';
 import { useToast } from '@/hooks/use-toast';
 import { useYMap } from '@/lib/sync/useYMap';
+import { useSkills } from '@/context/skills-context';
+import { TASK_XP } from '@/lib/xp';
 
 export type Priority = "High" | "Medium" | "Low";
 export type TaskStatus = "not_started" | "in_progress" | "completed";
@@ -24,6 +26,10 @@ export interface Task {
   estimatedHours?: number;
   /** e.g. "owner/repo#42" — when set, task is treated as blocked until the ref is closed/merged */
   blockedByRef?: string;
+  /** Optional link to a Skill — completion XP also applies to that skill */
+  skillId?: string;
+  /** Optional link to a Goal — used for derived goal progress */
+  goalId?: string;
 }
 
 interface TasksContextValue {
@@ -39,6 +45,7 @@ const TasksContext = createContext<TasksContextValue | null>(null);
 
 export function TasksProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
+  const { awardActivityXp } = useSkills();
   const { state: tasksMap, set: setTaskInMap, remove: removeTaskFromMap } = useYMap<Task>("tasks");
 
   const tasks = useMemo(() => {
@@ -117,25 +124,29 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     removeTaskFromMap(id);
   }, [removeTaskFromMap]);
 
+  const awardTaskXpIfNeeded = useCallback((task: Task, becomingCompleted: boolean, wasCompleted: boolean) => {
+    if (becomingCompleted && !wasCompleted) {
+      const amount = TASK_XP[task.priority] ?? TASK_XP.Medium;
+      awardActivityXp(amount, task.skillId);
+    }
+  }, [awardActivityXp]);
+
   const toggleComplete = useCallback((id: string) => {
     const t = tasksMap[id];
     if (t) {
       const newCompleted = !t.completed;
+      awardTaskXpIfNeeded(t, newCompleted, Boolean(t.completed));
       setTaskInMap(id, {
         ...t,
         completed: newCompleted,
         status: newCompleted ? 'completed' : 'not_started'
       });
     }
-  }, [tasksMap, setTaskInMap]);
+  }, [tasksMap, setTaskInMap, awardTaskXpIfNeeded]);
 
   const updateTask = useCallback((id: string, updates: Partial<Task>) => {
     const t = tasksMap[id];
     if (t) {
-      // Ensure we don't accidentally pass Date objects directly if they need to be strings in Yjs
-      // though Yjs can handle some objects, it's safer to keep them consistent.
-      // Actually Yjs Map will store whatever we give it.
-      
       const newStatus = updates.status !== undefined ? updates.status : t.status;
       const newCompleted = updates.completed !== undefined ? updates.completed : (updates.status !== undefined ? updates.status === 'completed' : t.completed);
 
@@ -148,9 +159,15 @@ export function TasksProvider({ children }: { children: ReactNode }) {
         finalStatus = updates.completed ? 'completed' : (t.status === 'completed' ? 'not_started' : t.status);
       }
 
+      awardTaskXpIfNeeded(
+        { ...t, ...updates, priority: updates.priority ?? t.priority, skillId: updates.skillId !== undefined ? updates.skillId : t.skillId },
+        Boolean(finalCompleted),
+        Boolean(t.completed),
+      );
+
       setTaskInMap(id, { ...t, ...updates, status: finalStatus, completed: finalCompleted });
     }
-  }, [tasksMap, setTaskInMap]);
+  }, [tasksMap, setTaskInMap, awardTaskXpIfNeeded]);
 
   const refreshGitHubTasks = useCallback(async () => {
     const config = getGitHubConfig();

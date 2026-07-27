@@ -10,9 +10,13 @@ import AddButton from "@/components/ui/add-button"
 import { cn } from "@/lib/utils"
 import { useHabits } from "@/context/habits-context"
 import { useNotifications } from "@/context/notifications-context"
+import { useSkills } from "@/context/skills-context"
+import { useGoals } from "@/context/goals-context"
+import { calcHabitStreaks, toDateString } from "@/lib/habit-streak"
+import { habitXpForStreak } from "@/lib/xp"
 
 // ── Date helpers ──────────────────────────────────────────────────────────────
-const toDs = (d: Date) => d.toISOString().split("T")[0]
+const toDs = toDateString
 
 function todayDate() {
   const d = new Date()
@@ -77,39 +81,6 @@ function intensityLevel(completed: number, total: number): 0 | 1 | 2 | 3 | 4 {
   return 4
 }
 
-// ── Streak calculation ────────────────────────────────────────────────────────
-function calcStreaks(dates: Set<string>) {
-  if (dates.size === 0) return { current: 0, longest: 0 }
-
-  const today = todayDate()
-  const todS  = toDs(today)
-  const checkFrom = dates.has(todS)
-    ? today
-    : new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1)
-
-  // Current streak: walk backward
-  let cur = 0
-  const cd = new Date(checkFrom)
-  while (dates.has(toDs(cd))) {
-    cur++
-    cd.setDate(cd.getDate() - 1)
-  }
-
-  // Longest streak: scan sorted
-  const sorted = [...dates].sort()
-  let longest = 1
-  let run = 1
-  for (let i = 1; i < sorted.length; i++) {
-    const diff = Math.round(
-      (new Date(sorted[i]).getTime() - new Date(sorted[i - 1]).getTime()) / 86400000
-    )
-    if (diff === 1) { run++; if (run > longest) longest = run }
-    else run = 1
-  }
-
-  return { current: cur, longest: Math.max(longest, cur) }
-}
-
 // ── Tooltip state ─────────────────────────────────────────────────────────────
 interface TipState {
   vx: number   // viewport x
@@ -121,6 +92,8 @@ interface TipState {
 // ── Component ─────────────────────────────────────────────────────────────────
 export function HabitTracker() {
   const { habits, entries, addHabit, deleteHabit, toggleEntry, getEntryForDate, updateHabit } = useHabits()
+  const { awardActivityXp } = useSkills()
+  const { activeGoals } = useGoals()
   const { addNotification } = useNotifications()
 
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
@@ -132,6 +105,7 @@ export function HabitTracker() {
   const [newFreq,     setNewFreq]     = useState<"daily" | "weekly" | "custom">("daily")
   const [newColor,    setNewColor]    = useState("")
   const [newReminder, setNewReminder] = useState("")
+  const [newGoalId,   setNewGoalId]   = useState("")
 
   // ── Grid (static) ───────────────────────────────────────────────────────────
   const grid = useMemo(() => buildGrid(), [])
@@ -166,12 +140,12 @@ export function HabitTracker() {
   const overallStreak = useMemo(() => {
     const allDates = new Set<string>()
     entries.forEach(e => allDates.add(e.date))
-    return calcStreaks(allDates)
+    return calcHabitStreaks(allDates)
   }, [entries])
 
   const perHabitStreaks = useMemo(() => {
     const map = new Map<string, { current: number; longest: number }>()
-    habits.forEach(h => map.set(h.id, calcStreaks(perHabitDateSets.get(h.id) ?? new Set())))
+    habits.forEach(h => map.set(h.id, calcHabitStreaks(perHabitDateSets.get(h.id) ?? new Set())))
     return map
   }, [habits, perHabitDateSets])
 
@@ -192,11 +166,22 @@ export function HabitTracker() {
   }, [selectedHabitId, perHabitDateSets, completionMap, habits.length])
 
   // ── Cell interaction ─────────────────────────────────────────────────────────
+  const completeHabitWithXp = useCallback((habitId: string, date: string) => {
+    const alreadyDone = Boolean(getEntryForDate(habitId, date))
+    toggleEntry(habitId, date)
+    if (!alreadyDone) {
+      const dates = new Set(perHabitDateSets.get(habitId) ?? [])
+      dates.add(date)
+      const { current } = calcHabitStreaks(dates)
+      awardActivityXp(habitXpForStreak(current))
+    }
+  }, [getEntryForDate, toggleEntry, perHabitDateSets, awardActivityXp])
+
   const handleCellClick = useCallback((cell: GridCell) => {
     if (!cell.date || !cell.ds || !editMode || !selectedHabitId) return
     if (cell.date >= todayDate()) return // only past cells in edit mode
-    toggleEntry(selectedHabitId, cell.ds)
-  }, [editMode, selectedHabitId, toggleEntry])
+    completeHabitWithXp(selectedHabitId, cell.ds)
+  }, [editMode, selectedHabitId, completeHabitWithXp])
 
   const handleCellHover = useCallback((e: React.MouseEvent<HTMLDivElement>, cell: GridCell) => {
     if (!cell.date || !cell.ds) return
@@ -226,9 +211,10 @@ export function HabitTracker() {
       category: newCategory.trim() || undefined,
       targetFrequency: newFreq,
       color: newColor.trim() || undefined,
-      reminderAt: newReminder || undefined
+      reminderAt: newReminder || undefined,
+      goalId: newGoalId || undefined,
     })
-    setNewName(""); setNewCategory(""); setNewFreq("daily"); setNewColor(""); setNewReminder(""); setShowAddForm(false)
+    setNewName(""); setNewCategory(""); setNewFreq("daily"); setNewColor(""); setNewReminder(""); setNewGoalId(""); setShowAddForm(false)
   }
 
   // Habit Notification Checker
@@ -272,7 +258,7 @@ export function HabitTracker() {
       setSelectedHabitId(habit.id)
       setEditMode(false)
     },
-    onSpace: (habit) => toggleEntry(habit.id, today),
+    onSpace: (habit) => completeHabitWithXp(habit.id, today),
     onSlash: () => {
       setShowAddForm(true)
       setTimeout(() => addHabitInputRef.current?.focus(), 0)
@@ -502,7 +488,7 @@ export function HabitTracker() {
                       <Checkbox
                         id={`chk-${h.id}`}
                         checked={done}
-                        onCheckedChange={() => toggleEntry(h.id, today)}
+                        onCheckedChange={() => completeHabitWithXp(h.id, today)}
                         style={{
                           backgroundColor: done && h.color ? h.color : undefined,
                           borderColor: h.color ? h.color : undefined
@@ -569,6 +555,18 @@ export function HabitTracker() {
                   onChange={e => setNewCategory(e.target.value)}
                   className="bg-background/50 border-border"
                 />
+                {activeGoals.length > 0 && (
+                  <select
+                    value={newGoalId}
+                    onChange={e => setNewGoalId(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-background/50 border border-border text-foreground text-sm min-h-[40px]"
+                  >
+                    <option value="">No related goal</option>
+                    {activeGoals.map(g => (
+                      <option key={g.id} value={g.id}>{g.title}</option>
+                    ))}
+                  </select>
+                )}
                 <div className="flex gap-2">
                   <Input
                     placeholder="Color hex (e.g. #06b6d4)"
@@ -635,7 +633,7 @@ export function HabitTracker() {
                           )}
                           <p className="text-sm font-medium truncate">{h.name}</p>
                         </div>
-                        <div className="flex items-center gap-3 mt-0.5">
+                        <div className="flex items-center gap-3 mt-0.5 flex-wrap">
                           {h.category && (
                             <span className="text-[10px] text-muted-foreground">{h.category}</span>
                           )}
@@ -645,6 +643,23 @@ export function HabitTracker() {
                           <span className="flex items-center gap-0.5 text-[10px] text-yellow-400">
                             <Trophy className="w-3 h-3" />{streak.longest}d best
                           </span>
+                          {activeGoals.length > 0 && (
+                            <select
+                              value={h.goalId || ""}
+                              onChange={e =>
+                                updateHabit(h.id, {
+                                  goalId: e.target.value || undefined,
+                                })
+                              }
+                              className="text-[10px] h-5 px-1 rounded-md bg-background/40 border border-border/40 text-muted-foreground max-w-[7rem]"
+                              title="Related goal"
+                            >
+                              <option value="">No goal</option>
+                              {activeGoals.map(g => (
+                                <option key={g.id} value={g.id}>{g.title}</option>
+                              ))}
+                            </select>
+                          )}
                         </div>
                       </div>
                       <DeleteButton onClick={() => deleteHabit(h.id)} />

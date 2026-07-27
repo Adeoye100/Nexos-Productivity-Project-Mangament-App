@@ -96,6 +96,10 @@ export function CommandPalette() {
             <span>Weather</span>
             <CommandShortcut>GP</CommandShortcut>
           </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => setLocation("/life"))}>
+            <Sparkles className="mr-2 h-4 w-4" />
+            <span>Life Dashboard</span>
+          </CommandItem>
           <CommandItem onSelect={() => runCommand(() => setLocation("/tasks"))}>
             <CheckSquare className="mr-2 h-4 w-4" />
             <span>Tasks</span>
@@ -110,6 +114,10 @@ export function CommandPalette() {
             <LayoutGrid className="mr-2 h-4 w-4" />
             <span>Habits</span>
             <CommandShortcut>GH</CommandShortcut>
+          </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => setLocation("/skills"))}>
+            <Sparkles className="mr-2 h-4 w-4" />
+            <span>Skills</span>
           </CommandItem>
           <CommandItem onSelect={() => runCommand(() => setLocation("/settings"))}>
             <Settings className="mr-2 h-4 w-4" />

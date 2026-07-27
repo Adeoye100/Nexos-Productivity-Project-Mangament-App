@@ -11,6 +11,8 @@ export interface Habit {
   color?: string; // Hex or CSS color
   reminderAt?: string; // HH:mm
   notifiedToday?: string; // YYYY-MM-DD
+  /** Optional link to a Goal */
+  goalId?: string;
 }
 
 export interface HabitEntry {
@@ -18,6 +20,8 @@ export interface HabitEntry {
   habitId: string;
   date: string; // YYYY-MM-DD
   completed: boolean;
+  /** Optional per-entry goal link (rarely set — prefer Habit.goalId) */
+  goalId?: string;
 }
 
 interface HabitsContextValue {

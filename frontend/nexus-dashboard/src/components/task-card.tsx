@@ -18,6 +18,8 @@ import { cn } from "@/lib/utils"
 import type { Task } from "@/context/tasks-context"
 import { useTasks } from "@/context/tasks-context"
 import { useNotifications } from "@/context/notifications-context"
+import { useSkills } from "@/context/skills-context"
+import { useGoals } from "@/context/goals-context"
 import { useToast } from "@/hooks/use-toast"
 import DeleteButton from "@/components/ui/delete-button"
 import {
@@ -36,6 +38,8 @@ interface TaskCardProps {
 export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCardProps) {
   const { deleteTask, toggleComplete, updateTask } = useTasks()
   const { addNotification } = useNotifications()
+  const { skills } = useSkills()
+  const { activeGoals } = useGoals()
   const { toast } = useToast()
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editText, setEditText] = useState("")
@@ -313,6 +317,56 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
           <Badge variant="secondary" className={cn("text-[10px] font-normal h-5 px-1.5", isBoard && "bg-zinc-800 text-zinc-300")}>
             {task.category}
           </Badge>
+
+          {(task.skillId || skills.length > 0) && (
+            <select
+              value={task.skillId || ""}
+              onClick={(e) => e.stopPropagation()}
+              onChange={(e) => {
+                e.stopPropagation()
+                updateTask(task.id, {
+                  skillId: e.target.value || undefined,
+                })
+              }}
+              className={cn(
+                "text-[10px] h-5 px-1.5 rounded-md bg-accent/10 text-accent border-0 max-w-[9rem]",
+                isBoard && "bg-zinc-800 text-zinc-300"
+              )}
+              title="Related skill"
+            >
+              <option value="">No skill</option>
+              {skills.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {(task.goalId || activeGoals.length > 0) && (
+            <select
+              value={task.goalId || ""}
+              onClick={(e) => e.stopPropagation()}
+              onChange={(e) => {
+                e.stopPropagation()
+                updateTask(task.id, {
+                  goalId: e.target.value || undefined,
+                })
+              }}
+              className={cn(
+                "text-[10px] h-5 px-1.5 rounded-md bg-primary/10 text-primary border-0 max-w-[9rem]",
+                isBoard && "bg-zinc-800 text-zinc-300"
+              )}
+              title="Related goal"
+            >
+              <option value="">No goal</option>
+              {activeGoals.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.title}
+                </option>
+              ))}
+            </select>
+          )}
 
           {task.githubIssueId && (
             <Badge variant="outline" className="text-[10px] font-normal h-5 px-1.5 border-slate-700 bg-slate-900/50 text-slate-300 gap-1">

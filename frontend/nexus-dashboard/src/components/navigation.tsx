@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Cloud, CheckSquare, MessageSquare, Settings, Bell, LayoutGrid, Terminal, Palette } from "lucide-react"
+import { Cloud, CheckSquare, MessageSquare, Settings, Bell, LayoutGrid, Terminal, Palette, Sprout, Compass } from "lucide-react"
 import { Link, useLocation } from "wouter"
 import { cn } from "@/lib/utils"
 import { ThemeSelector } from "@/components/theme-selector"
@@ -14,9 +14,11 @@ export function Navigation() {
 
   const links = [
     { href: "/",         label: "Weather",      mobileLabel: "Weather",  icon: Cloud },
+    { href: "/life",     label: "Life",          mobileLabel: "Life",     icon: Compass },
     { href: "/tasks",    label: "Tasks",         mobileLabel: "Tasks",    icon: CheckSquare },
     { href: "/assistant",label: "AI Assistant",  mobileLabel: "AI",       icon: MessageSquare },
     { href: "/habits",   label: "Habits",        mobileLabel: "Habits",   icon: LayoutGrid },
+    { href: "/skills",   label: "Skills",        mobileLabel: "Skills",   icon: Sprout },
     { href: "/commands", label: "Commands",      mobileLabel: "Prompts",   icon: Terminal },
     { href: "/settings", label: "Settings",      mobileLabel: "Settings", icon: Settings },
   ]

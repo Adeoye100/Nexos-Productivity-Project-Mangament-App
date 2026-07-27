@@ -11,9 +11,14 @@ import { NotificationsProvider } from '@/context/notifications-context';
 import { HabitsProvider } from '@/context/habits-context';
 import { PromptsProvider } from '@/context/prompts-context';
 import { CommandsProvider } from '@/context/commands-context';
+import { SkillsProvider } from '@/context/skills-context';
+import { GoalsProvider } from '@/context/goals-context';
+import { TimeEntriesProvider } from '@/context/time-entries-context';
 import { CommandPalette } from '@/components/command-palette';
 import { ShortcutsHelp } from '@/components/shortcuts-help';
 import { useBlockedDependencyPolling } from '@/hooks/use-blocked-dependency-polling';
+import { SkillsPortfolio } from '@/components/skills-portfolio';
+import { LifeDashboard } from '@/components/life-dashboard';
 
 function BlockedDependencyWatcher() {
   useBlockedDependencyPolling();
@@ -93,6 +98,30 @@ function HabitsPage() {
   );
 }
 
+function SkillsPage() {
+  return (
+    <main className="min-h-screen bg-background">
+      <BackgroundManager />
+      <Navigation />
+      <div className="pt-24 pb-28 md:pb-12">
+        <SkillsPortfolio />
+      </div>
+    </main>
+  );
+}
+
+function LifeDashboardPage() {
+  return (
+    <main className="min-h-screen bg-background">
+      <BackgroundManager />
+      <Navigation />
+      <div className="pt-24 pb-28 md:pb-12">
+        <LifeDashboard />
+      </div>
+    </main>
+  );
+}
+
 function CommandsPage() {
   return (
     <main className="min-h-screen bg-background">
@@ -108,9 +137,11 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
+      <Route path="/life" component={LifeDashboardPage} />
       <Route path="/tasks" component={TasksPage} />
       <Route path="/assistant" component={AssistantPage} />
       <Route path="/habits" component={HabitsPage} />
+      <Route path="/skills" component={SkillsPage} />
       <Route path="/commands" component={CommandsPage} />
       <Route path="/settings" component={SettingsPage} />
       <Route path="/sync-test" component={SyncTestPage} />
@@ -125,6 +156,9 @@ function App() {
       <TooltipProvider>
         <ThemeProvider attribute="class" defaultTheme="system" themes={['light', 'dark', 'warm']} enableSystem disableTransitionOnChange>
           <YjsProvider>
+            <SkillsProvider>
+            <GoalsProvider>
+            <TimeEntriesProvider>
             <TasksProvider>
               <NotificationsProvider>
                 <BlockedDependencyWatcher />
@@ -143,6 +177,9 @@ function App() {
                 </HabitsProvider>
               </NotificationsProvider>
             </TasksProvider>
+            </TimeEntriesProvider>
+            </GoalsProvider>
+            </SkillsProvider>
           </YjsProvider>
         </ThemeProvider>
       </TooltipProvider>

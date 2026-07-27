@@ -20,6 +20,8 @@ import {
 import { cn } from "@/lib/utils"
 import { useTasks } from "@/context/tasks-context"
 import { useNotifications } from "@/context/notifications-context"
+import { useSkills } from "@/context/skills-context"
+import { useGoals } from "@/context/goals-context"
 import type { Task, Priority } from "@/context/tasks-context"
 
 const categories = ["Personal", "Work", "Health", "Shopping", "Other"]
@@ -28,10 +30,14 @@ const priorities: Priority[] = ["High", "Medium", "Low"]
 export function TaskManager() {
   const { tasks, addTask, deleteTask, toggleComplete, updateTask, refreshGitHubTasks } = useTasks()
   const { addNotification } = useNotifications()
+  const { skills } = useSkills()
+  const { activeGoals } = useGoals()
 
   const [newTask, setNewTask] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("Personal")
   const [selectedPriority, setSelectedPriority] = useState<Priority>("Medium")
+  const [selectedSkillId, setSelectedSkillId] = useState<string>("")
+  const [selectedGoalId, setSelectedGoalId] = useState<string>("")
   const [newTaskDueDate, setNewTaskDueDate] = useState("")
   const [newTaskReminder, setNewTaskReminder] = useState("")
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -157,10 +163,14 @@ export function TaskManager() {
       completed: false,
       dueDate: newTaskDueDate ? new Date(newTaskDueDate) : undefined,
       reminderAt: newTaskReminder ? new Date(newTaskReminder) : undefined,
+      skillId: selectedSkillId || undefined,
+      goalId: selectedGoalId || undefined,
     })
     setNewTask("")
     setNewTaskDueDate("")
     setNewTaskReminder("")
+    setSelectedSkillId("")
+    setSelectedGoalId("")
     generateAiSuggestion()
   }
 
@@ -324,6 +334,28 @@ export function TaskManager() {
           >
             {priorities.map(p => (
               <option key={p} value={p}>{p} Priority</option>
+            ))}
+          </select>
+          <select
+            value={selectedSkillId}
+            onChange={e => setSelectedSkillId(e.target.value)}
+            className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-background/30 border border-border/50 text-foreground backdrop-blur-sm min-h-[44px]"
+            title="Related skill (optional)"
+          >
+            <option value="">No related skill</option>
+            {skills.map(s => (
+              <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
+          </select>
+          <select
+            value={selectedGoalId}
+            onChange={e => setSelectedGoalId(e.target.value)}
+            className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-background/30 border border-border/50 text-foreground backdrop-blur-sm min-h-[44px]"
+            title="Related goal (optional)"
+          >
+            <option value="">No related goal</option>
+            {activeGoals.map(g => (
+              <option key={g.id} value={g.id}>{g.title}</option>
             ))}
           </select>
           <div className="flex-1 md:flex-none flex items-center gap-2 bg-background/30 border border-border/50 rounded-xl px-3 backdrop-blur-sm min-h-[44px]">
