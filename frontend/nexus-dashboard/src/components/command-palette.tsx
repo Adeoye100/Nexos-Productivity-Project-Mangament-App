@@ -10,6 +10,7 @@ import {
   Moon,
   Sun,
   Laptop,
+  Sparkles,
 } from "lucide-react"
 import { useLocation } from "wouter"
 import { useTheme } from "next-themes"
@@ -17,6 +18,7 @@ import { useTasks } from "@/context/tasks-context"
 import { useHabits } from "@/context/habits-context"
 import { usePrompts } from "@/context/prompts-context"
 import { useCommands } from "@/context/commands-context"
+import { IntentProjectDialog } from "@/components/intent-project-dialog"
 
 import {
   CommandDialog,
@@ -31,6 +33,7 @@ import {
 
 export function CommandPalette() {
   const [open, setOpen] = React.useState(false)
+  const [intentOpen, setIntentOpen] = React.useState(false)
   const [, setLocation] = useLocation()
   const { setTheme } = useTheme()
   const { addTask } = useTasks()
@@ -77,6 +80,7 @@ export function CommandPalette() {
   }, [])
 
   return (
+    <>
     <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandInput 
         placeholder="Type a command or search..." 
@@ -130,6 +134,17 @@ export function CommandPalette() {
           >
             <Plus className="mr-2 h-4 w-4" />
             <span>Add New Task</span>
+          </CommandItem>
+          <CommandItem
+            onSelect={() =>
+              runCommand(() => {
+                // Defer so CommandDialog can unmount before opening Intent dialog
+                setTimeout(() => setIntentOpen(true), 50)
+              })
+            }
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            <span>New Project from Intent</span>
           </CommandItem>
           <CommandItem
             onSelect={() =>
@@ -195,5 +210,7 @@ export function CommandPalette() {
         </CommandGroup>
       </CommandList>
     </CommandDialog>
+    <IntentProjectDialog open={intentOpen} onOpenChange={setIntentOpen} />
+    </>
   )
 }

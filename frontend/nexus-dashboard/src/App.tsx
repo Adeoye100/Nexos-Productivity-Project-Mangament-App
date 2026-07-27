@@ -13,6 +13,12 @@ import { PromptsProvider } from '@/context/prompts-context';
 import { CommandsProvider } from '@/context/commands-context';
 import { CommandPalette } from '@/components/command-palette';
 import { ShortcutsHelp } from '@/components/shortcuts-help';
+import { useBlockedDependencyPolling } from '@/hooks/use-blocked-dependency-polling';
+
+function BlockedDependencyWatcher() {
+  useBlockedDependencyPolling();
+  return null;
+}
 
 // Pages
 import SyncTestPage from '@/pages/sync-test';
@@ -121,6 +127,7 @@ function App() {
           <YjsProvider>
             <TasksProvider>
               <NotificationsProvider>
+                <BlockedDependencyWatcher />
                 <HabitsProvider>
                   <PromptsProvider>
                     <CommandsProvider>

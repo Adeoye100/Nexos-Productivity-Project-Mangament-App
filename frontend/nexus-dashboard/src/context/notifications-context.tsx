@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { toast } from 'sonner';
 
-export type NotificationType = 'task_due' | 'task_overdue' | 'task_completed' | 'ai_reply' | 'reminder';
+export type NotificationType = 'task_due' | 'task_overdue' | 'task_completed' | 'ai_reply' | 'reminder' | 'task_unblocked';
 
 export interface AppNotification {
   id: string;

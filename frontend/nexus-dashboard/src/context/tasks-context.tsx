@@ -22,6 +22,8 @@ export interface Task {
   githubIssueId?: number;
   githubUrl?: string;
   estimatedHours?: number;
+  /** e.g. "owner/repo#42" — when set, task is treated as blocked until the ref is closed/merged */
+  blockedByRef?: string;
 }
 
 interface TasksContextValue {
@@ -101,7 +103,7 @@ export function TasksProvider({ children }: { children: ReactNode }) {
       ...data,
       status,
       completed: status === 'completed',
-      id: Date.now().toString(),
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       createdAt: new Date(),
       notified: false,
       overdueNotified: false,

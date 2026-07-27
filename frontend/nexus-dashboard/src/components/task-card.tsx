@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import {
   Trash2, Edit2, Check, X,
-  ArrowUp, ArrowRight, ArrowDown, Calendar, Bell, MoreVertical, Github, ExternalLink
+  ArrowUp, ArrowRight, ArrowDown, Calendar, Bell, MoreVertical, Github, ExternalLink,
+  Link2, RefreshCw, Ban,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -16,7 +17,14 @@ import {
 import { cn } from "@/lib/utils"
 import type { Task } from "@/context/tasks-context"
 import { useTasks } from "@/context/tasks-context"
+import { useNotifications } from "@/context/notifications-context"
+import { useToast } from "@/hooks/use-toast"
 import DeleteButton from "@/components/ui/delete-button"
+import {
+  formatGitHubRefShort,
+  isValidGitHubRef,
+} from "@/lib/github"
+import { checkAndUnblockTask } from "@/lib/blocked-dependency"
 
 interface TaskCardProps {
   task: Task
@@ -27,10 +35,16 @@ interface TaskCardProps {
 
 export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCardProps) {
   const { deleteTask, toggleComplete, updateTask } = useTasks()
+  const { addNotification } = useNotifications()
+  const { toast } = useToast()
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editText, setEditText] = useState("")
   const [settingReminderId, setSettingReminderId] = useState<string | null>(null)
   const [reminderInput, setReminderInput] = useState("")
+  const [linkingBlock, setLinkingBlock] = useState(false)
+  const [blockRefInput, setBlockRefInput] = useState("")
+  const [blockRefError, setBlockRefError] = useState("")
+  const [checkingStatus, setCheckingStatus] = useState(false)
 
   const startEdit = () => {
     setEditingId(task.id)
@@ -53,12 +67,66 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
     setSettingReminderId(null)
   }
 
+  const openBlockLink = () => {
+    setLinkingBlock(true)
+    setBlockRefInput(task.blockedByRef || "")
+    setBlockRefError("")
+  }
+
+  const saveBlockRef = () => {
+    const trimmed = blockRefInput.trim()
+    if (!trimmed) {
+      updateTask(task.id, { blockedByRef: undefined })
+      setLinkingBlock(false)
+      setBlockRefError("")
+      return
+    }
+    if (!isValidGitHubRef(trimmed)) {
+      setBlockRefError('Must look like "owner/repo#42"')
+      return
+    }
+    updateTask(task.id, { blockedByRef: trimmed })
+    setLinkingBlock(false)
+    setBlockRefError("")
+  }
+
+  const clearBlockRef = () => {
+    updateTask(task.id, { blockedByRef: undefined })
+    setLinkingBlock(false)
+    setBlockRefInput("")
+    setBlockRefError("")
+  }
+
+  const handleCheckStatus = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!task.blockedByRef) return
+    setCheckingStatus(true)
+    try {
+      const result = await checkAndUnblockTask(task, { updateTask, addNotification })
+      if (!result.unblocked) {
+        toast({
+          title: "Still blocked",
+          description: `${formatGitHubRefShort(task.blockedByRef)} is still open.`,
+        })
+      }
+    } catch (err) {
+      toast({
+        title: "Could not check status",
+        description: err instanceof Error ? err.message : "GitHub check failed",
+        variant: "destructive",
+      })
+    } finally {
+      setCheckingStatus(false)
+    }
+  }
+
   const handleToggleComplete = (e: React.MouseEvent) => {
     e.stopPropagation()
     toggleComplete(task.id)
   }
 
   const isBoard = variant === "board"
+  const isBlocked = Boolean(task.blockedByRef?.trim())
 
   return (
     <Card
@@ -68,7 +136,8 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
           ? "bg-[#0a0a0a] border-[#1a1a1a] hover:border-accent/40 shadow-lg" 
           : "glass-card border-border/50 hover:border-primary/40",
         task.completed && "opacity-60",
-        isSelected && (isBoard ? "border-accent ring-1 ring-accent/20 bg-accent/5" : "border-l-4 border-l-primary ring-1 ring-primary/20 bg-primary/5")
+        isSelected && (isBoard ? "border-accent ring-1 ring-accent/20 bg-accent/5" : "border-l-4 border-l-primary ring-1 ring-primary/20 bg-primary/5"),
+        isBlocked && !task.completed && "shadow-md ring-1 ring-amber-500/20"
       )}
       onClick={onClick}
     >
@@ -139,6 +208,21 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
                     size="sm" variant="ghost"
                     onClick={(e) => {
                       e.stopPropagation()
+                      openBlockLink()
+                    }}
+                    className={cn(
+                      "h-7 w-7 p-0 text-muted-foreground hover:text-amber-500",
+                      isBlocked && "text-amber-500",
+                      isBoard && "hover:bg-zinc-800"
+                    )}
+                    title="Link GitHub PR/issue block"
+                  >
+                    <Link2 className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button
+                    size="sm" variant="ghost"
+                    onClick={(e) => {
+                      e.stopPropagation()
                       if (settingReminderId === task.id) {
                         setSettingReminderId(null)
                       } else {
@@ -169,6 +253,9 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="glass-strong border-primary/20">
+                      <DropdownMenuItem onClick={openBlockLink}>
+                        <Link2 className="w-4 h-4 mr-2" /> Link GitHub Block
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => {
                         setSettingReminderId(settingReminderId === task.id ? null : task.id)
                         setReminderInput(task.reminderAt ? new Date(task.reminderAt).toISOString().slice(0, 16) : "")
@@ -190,6 +277,13 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
         </div>
 
         <div className={cn("flex flex-wrap gap-2 mt-3", !isBoard && "ml-8")}>
+          {isBlocked && task.blockedByRef && (
+            <Badge className="text-[10px] gap-1 font-medium h-5 px-1.5 border-0 bg-amber-500/15 text-amber-700 dark:text-amber-400">
+              <Ban className="w-2.5 h-2.5" />
+              Blocked by {formatGitHubRefShort(task.blockedByRef)}
+            </Badge>
+          )}
+
           {task.dueDate && (
             <Badge variant="outline" className={cn(
               "text-[10px] gap-1 font-normal h-5 px-1.5",
@@ -244,6 +338,75 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
             </span>
           )}
         </div>
+
+        {isBlocked && !linkingBlock && (
+          <div className={cn("flex flex-wrap items-center gap-2 mt-3", !isBoard && "ml-8")}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleCheckStatus}
+              disabled={checkingStatus}
+              className="h-8 text-[10px] border-border/50 bg-background/30 backdrop-blur-sm"
+            >
+              <RefreshCw className={cn("w-3 h-3 mr-1.5", checkingStatus && "animate-spin")} />
+              Check Status
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={(e) => { e.stopPropagation(); clearBlockRef(); }}
+              className="h-8 text-[10px] text-muted-foreground"
+            >
+              Clear block
+            </Button>
+          </div>
+        )}
+
+        {linkingBlock && (
+          <div className={cn("mt-3 space-y-2", !isBoard && "ml-8")} onClick={(e) => e.stopPropagation()}>
+            <div className="flex flex-wrap items-center gap-2">
+              <Input
+                value={blockRefInput}
+                onChange={e => {
+                  setBlockRefInput(e.target.value)
+                  setBlockRefError("")
+                }}
+                onKeyDown={e => {
+                  if (e.key === "Enter") saveBlockRef()
+                  if (e.key === "Escape") {
+                    setLinkingBlock(false)
+                    setBlockRefError("")
+                  }
+                }}
+                placeholder="owner/repo#42"
+                className={cn(
+                  "h-8 text-xs border-border/50 flex-1 min-w-[10rem]",
+                  isBoard ? "bg-black/50" : "bg-background/30 backdrop-blur-sm",
+                  blockRefError && "border-destructive/60"
+                )}
+                autoFocus
+              />
+              <Button size="sm" onClick={saveBlockRef} className="h-8 text-[10px]">
+                Save
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => { setLinkingBlock(false); setBlockRefError("") }}
+                className="h-8 text-[10px]"
+              >
+                Cancel
+              </Button>
+            </div>
+            {blockRefError ? (
+              <p className="text-[10px] text-destructive">{blockRefError}</p>
+            ) : (
+              <p className="text-[10px] text-muted-foreground">
+                Link a GitHub PR or issue. Task stays blocked until it is merged or closed.
+              </p>
+            )}
+          </div>
+        )}
 
         {settingReminderId === task.id && (
           <div className={cn("flex items-center gap-2 mt-3", !isBoard && "ml-8")}>

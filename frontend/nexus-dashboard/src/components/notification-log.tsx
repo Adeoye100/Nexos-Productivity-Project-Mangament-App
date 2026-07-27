@@ -1,6 +1,6 @@
 import { useNotifications } from '@/context/notifications-context';
 import { Button } from '@/components/ui/button';
-import { X, Bell, CheckCheck, Trash2, BellRing, Check, Clock, MessageSquare } from 'lucide-react';
+import { X, Bell, CheckCheck, Trash2, BellRing, Check, Clock, MessageSquare, Unlock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { NotificationType } from '@/context/notifications-context';
 
@@ -10,6 +10,7 @@ const typeConfig: Record<NotificationType, { icon: typeof Bell; label: string; c
   task_completed: { icon: Check,         label: 'Done',     color: 'text-green-400'  },
   ai_reply:       { icon: MessageSquare, label: 'AI',       color: 'text-primary'    },
   reminder:       { icon: Bell,          label: 'Reminder', color: 'text-accent'     },
+  task_unblocked: { icon: Unlock,        label: 'Unblocked', color: 'text-emerald-400' },
 };
 
 interface Props {
