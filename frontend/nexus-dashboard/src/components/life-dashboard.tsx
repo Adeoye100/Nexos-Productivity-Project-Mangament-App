@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { Link } from "wouter"
 import {
   Flame,
@@ -8,6 +8,9 @@ import {
   Plus,
   ArrowRight,
   Trophy,
+  Sparkles,
+  RefreshCw,
+  Calendar,
 } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -35,6 +38,18 @@ import {
 } from "@/lib/goal-progress"
 import { xpProgress } from "@/lib/xp"
 import { TimeTrackerWidget } from "@/components/time-tracker"
+import { generateDigest } from "@/lib/insights-digest"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import { useYMap } from "@/lib/sync/useYMap"
+import { formatDistanceToNow } from "date-fns"
+
+import { cn } from "@/lib/utils"
+
+interface AIInsight {
+  content: string;
+  timestamp: string;
+}
 
 export function LifeDashboard() {
   const { goals, activeGoals, addGoal, updateGoal } = useGoals()
@@ -43,11 +58,37 @@ export function LifeDashboard() {
   const { skills, generalXp, generalLevel } = useSkills()
   const { entries: timeEntries } = useTimeEntries()
 
+  const { state: insightsMap, set: setInsight } = useYMap<AIInsight>("ai-insights")
+  const latestInsight = insightsMap["latest"] || null
+  const [isGenerating, setIsGenerating] = useState(false)
+
   const [goalOpen, setGoalOpen] = useState(false)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [targetDate, setTargetDate] = useState("")
   const [category, setCategory] = useState("")
+
+  const handleGenerateInsights = async () => {
+    setIsGenerating(true)
+    try {
+      const digest = generateDigest(tasks, habits, habitEntries, timeEntries, goals)
+      const response = await fetch("/api/insights/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ digest }),
+      })
+      if (!response.ok) throw new Error("Failed to generate insights")
+      const data = await response.json()
+      setInsight("latest", {
+        content: data.message,
+        timestamp: new Date().toISOString(),
+      })
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setIsGenerating(false)
+    }
+  }
 
   const habitSummary = useMemo(() => {
     const allDates = new Set<string>()
@@ -127,11 +168,70 @@ export function LifeDashboard() {
             Goals, habits, growth, and time — one view over your existing data.
           </p>
         </div>
-        <Button onClick={() => setGoalOpen(true)} className="shrink-0 shadow-sm">
-          <Plus className="w-4 h-4 mr-2" />
-          New Goal
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setGoalOpen(true)} className="shrink-0 shadow-sm">
+            <Plus className="w-4 h-4 mr-2" />
+            New Goal
+          </Button>
+        </div>
       </div>
+
+      {/* AI Insights Section */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-accent" />
+            <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+              AI Insights
+            </h2>
+          </div>
+          {latestInsight && (
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] text-muted-foreground">
+                Last updated: {formatDistanceToNow(new Date(latestInsight.timestamp), { addSuffix: true })}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-[10px]"
+                onClick={handleGenerateInsights}
+                disabled={isGenerating}
+              >
+                <RefreshCw className={cn("w-3 h-3 mr-1", isGenerating && "animate-spin")} />
+                Refresh
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {!latestInsight ? (
+          <Card className="border-none shadow-md bg-background/30 backdrop-blur-sm p-8 text-center">
+            <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+              Get an AI-powered summary of your recent productivity patterns based on your tasks, habits, and time logs.
+            </p>
+            <Button 
+              onClick={handleGenerateInsights} 
+              disabled={isGenerating}
+              className="bg-accent hover:bg-accent/90 text-accent-foreground"
+            >
+              {isGenerating ? (
+                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Sparkles className="w-4 h-4 mr-2" />
+              )}
+              Generate Insights
+            </Button>
+          </Card>
+        ) : (
+          <Card className="border-none shadow-md bg-background/40 backdrop-blur-sm p-6 overflow-hidden">
+            <div className="prose prose-sm dark:prose-invert prose-p:leading-relaxed max-w-none text-foreground">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {latestInsight.content}
+              </ReactMarkdown>
+            </div>
+          </Card>
+        )}
+      </section>
 
       {/* Active Goals */}
       <section className="space-y-3">
