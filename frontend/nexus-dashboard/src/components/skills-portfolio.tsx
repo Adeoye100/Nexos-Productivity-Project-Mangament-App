@@ -92,7 +92,8 @@ export function SkillsPortfolio() {
     <div className="container mx-auto px-4 max-w-3xl">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-4xl sm:text-5xl font-medium tracking-tight mb-2">
+          <p className="font-mono text-xs uppercase tracking-wider text-muted-foreground mb-2">Growth & Competency</p>
+          <h1 className="text-4xl sm:text-5xl font-serif tracking-tight mb-2">
             Skills Portfolio
           </h1>
           <p className="text-muted-foreground text-base sm:text-lg">
@@ -105,35 +106,35 @@ export function SkillsPortfolio() {
         </Button>
       </div>
 
-      <Card className="border-none shadow-md bg-background/40 backdrop-blur-sm p-5 mb-6">
+      <Card className="shadow-sm border-border p-5 mb-6">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-full bg-accent/15 flex items-center justify-center">
-            <Sprout className="w-5 h-5 text-accent" />
+          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+            <Sprout className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <p className="text-sm text-muted-foreground font-medium">Overall growth</p>
-            <p className="text-2xl font-medium leading-none">
+            <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Overall growth</p>
+            <p className="text-2xl font-serif leading-none">
               Level <span key={generalLevel} className="animate-level-up inline-block">{generalLevel}</span>
-              <span className="text-sm text-muted-foreground font-normal ml-2">
+              <span className="font-sans text-sm text-muted-foreground ml-2">
                 {generalXp} XP
               </span>
             </p>
           </div>
         </div>
         <Progress value={general.ratio * 100} className="h-2" />
-        <p className="text-xs text-muted-foreground mt-2">
+        <p className="font-mono text-[10px] text-muted-foreground mt-2 uppercase tracking-wide">
           {general.remaining} XP to level {general.level + 1}
-          <span className="opacity-70"> · level = ⌊√(xp / 50)⌋</span>
+          <span className="opacity-70 ml-2">· L = ⌊√(XP / 50)⌋</span>
         </p>
       </Card>
 
       {skills.length === 0 ? (
-        <Card className="border-none shadow-md bg-background/30 backdrop-blur-sm p-10 text-center">
+        <Card className="shadow-sm border-border bg-card p-10 text-center">
           <Sprout className="w-10 h-10 mx-auto text-muted-foreground mb-3 opacity-60" />
-          <p className="text-muted-foreground mb-4">
-            No skills yet. Add something you&apos;re actively growing.
+          <p className="text-muted-foreground mb-4 font-mono text-xs uppercase tracking-wider">
+            No skills yet. Add something you're actively growing.
           </p>
-          <Button variant="outline" onClick={() => setAddOpen(true)}>
+          <Button variant="outline" onClick={() => setAddOpen(true)} className="font-mono text-xs uppercase tracking-wider">
             <Plus className="w-4 h-4 mr-2" />
             Add your first skill
           </Button>
@@ -260,7 +261,7 @@ function SkillCard({
   const progress = xpProgress(skill.xp)
 
   return (
-    <div className="border-b border-border/30 last:border-0 hover:bg-muted/10 transition-colors overflow-hidden">
+    <div className="border-b border-border/50 last:border-0 hover:bg-muted/10 transition-colors overflow-hidden">
       <button
         type="button"
         onClick={onToggle}
@@ -275,26 +276,26 @@ function SkillCard({
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
-            <h2 className="text-lg font-medium truncate">{skill.name}</h2>
+            <h2 className="text-xl font-serif truncate">{skill.name}</h2>
             {skill.category && (
               <Badge
                 variant="secondary"
-                className="text-[10px] font-normal h-5 px-1.5"
+                className="font-mono text-[9px] uppercase tracking-wider h-5 px-1.5"
               >
                 {skill.category}
               </Badge>
             )}
           </div>
           <div className="flex items-baseline gap-2 mb-2">
-            <span key={skill.level} className="text-3xl font-medium text-accent leading-none animate-level-up inline-block">
+            <span key={skill.level} className="text-3xl font-serif text-primary leading-none animate-level-up inline-block">
               {skill.level}
             </span>
-            <span className="text-xs text-muted-foreground">
-              level · {skill.xp} XP
+            <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+              lvl · {skill.xp} XP
             </span>
           </div>
-          <Progress value={progress.ratio * 100} className="h-1.5" />
-          <p className="text-[11px] text-muted-foreground mt-1.5">
+          <Progress value={progress.ratio * 100} className="h-1.5 bg-muted" />
+          <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground mt-1.5">
             {progress.remaining} XP to next level
           </p>
         </div>

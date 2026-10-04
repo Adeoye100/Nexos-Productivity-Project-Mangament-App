@@ -6,6 +6,7 @@ import NotFound from '@/pages/not-found';
 import { Route, Switch, Router as WouterRouter } from 'wouter';
 import { ThemeProvider } from '@/components/theme-provider';
 import { YjsProvider } from '@/lib/sync/YjsProvider';
+import { AppModeProvider } from '@/context/app-mode-context';
 import { TasksProvider } from '@/context/tasks-context';
 import { NotificationsProvider } from '@/context/notifications-context';
 import { HabitsProvider } from '@/context/habits-context';
@@ -29,7 +30,6 @@ function BlockedDependencyWatcher() {
 import SyncTestPage from '@/pages/sync-test';
 import { Navigation } from '@/components/navigation';
 import { OnboardingWrapper } from '@/components/onboarding-wrapper';
-import { BackgroundManager } from '@/components/background-manager';
 import { TaskManager } from '@/components/task-manager';
 import { AIAssistant } from '@/components/ai-assistant';
 import { SettingsPanel } from '@/components/settings-panel';
@@ -41,7 +41,6 @@ const queryClient = new QueryClient();
 function TasksPage() {
   return (
     <main className="min-h-screen">
-      <BackgroundManager />
       <Navigation />
       <div className="pt-24 pb-28 md:pb-12">
         <TaskManager />
@@ -89,7 +88,6 @@ function HabitsPage() {
 function SkillsPage() {
   return (
     <main className="min-h-screen bg-background">
-      <BackgroundManager />
       <Navigation />
       <div className="pt-24 pb-28 md:pb-12">
         <SkillsPortfolio />
@@ -101,7 +99,6 @@ function SkillsPage() {
 function LifeDashboardPage() {
   return (
     <main className="min-h-screen bg-background">
-      <BackgroundManager />
       <Navigation />
       <div className="pt-24 pb-28 md:pb-12">
         <LifeDashboard />
@@ -142,6 +139,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <ThemeProvider attribute="class" defaultTheme="system" themes={['light', 'dark', 'warm']} enableSystem disableTransitionOnChange>
+          <AppModeProvider>
           <YjsProvider>
             <SkillsProvider>
             <GoalsProvider>
@@ -168,6 +166,7 @@ function App() {
             </GoalsProvider>
             </SkillsProvider>
           </YjsProvider>
+          </AppModeProvider>
         </ThemeProvider>
       </TooltipProvider>
     </QueryClientProvider>
