@@ -1,16 +1,16 @@
-# 📚 Nexus Docs — Master Index
+# Nexus Docs — Master Index
 
 > **Obsidian Graph Ready** — all notes use `[[WikiLinks]]`. Open **Graph View** to explore connections.
 
 ---
 
-## 🎯 Start Here
+## Start Here
 - [[Nexos Productivity App]] — feature map & navigation hub
 - [[README]] — how to use this vault
 
 ---
 
-## 🧩 Feature Notes (alphabetical)
+## Feature Notes (alphabetical)
 | Note | Core Domain | Key Links |
 |------|-------------|-----------|
 | [[AI Assistant]] | AI / Chat | Task Manager, Weather, Habits, Prompts |
@@ -32,7 +32,7 @@
 
 ---
 
-## 🔗 Cross-Module Connections
+## Cross-Module Connections
 
 ```text
 Task Manager ←→ Kanban Board
@@ -58,12 +58,12 @@ Keyboard Shortcuts ←→ all modules (vim nav)
 
 ---
 
-## 🏷️ Tags for Filtering
+## Tags for Filtering
 #core #task #habit #ai #weather #command #background #notification #settings #keyboard #security #github #skill #goal #time #sync #crdt #p2p #local-first #encryption #pwa
 
 ---
 
-## 🛠️ Technical Notes (optional)
+## Technical Notes (optional)
 - [[Architecture Overview]]
 - [[API Endpoints]]
 - [[Data Models]]

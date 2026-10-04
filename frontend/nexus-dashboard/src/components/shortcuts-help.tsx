@@ -102,7 +102,7 @@ export function ShortcutsHelp() {
 
           <div className="space-y-6 py-4">
             <div className="space-y-3">
-              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Global</h4>
+              <h4 className="text-sm font-semibold text-muted-foreground font-semibold tracking-tight">Global</h4>
               <div className="grid grid-cols-[1fr_auto] gap-2">
                 <div className="text-sm">Command Palette</div>
                 <div className="flex gap-1">
@@ -116,7 +116,7 @@ export function ShortcutsHelp() {
 
             {pageShortcuts.map((group, i) => (
               <div key={i} className="space-y-3 pt-3 border-t border-border/50">
-                <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{group.group}</h4>
+                <h4 className="text-sm font-semibold text-muted-foreground font-semibold tracking-tight">{group.group}</h4>
                 <div className="space-y-2">
                   {group.shortcuts.map((sc, j) => (
                     <div key={j} className="grid grid-cols-[1fr_auto] gap-2">

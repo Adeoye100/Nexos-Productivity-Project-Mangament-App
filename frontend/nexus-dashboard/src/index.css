@@ -208,7 +208,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased bg-background text-foreground transition-colors duration-500;
   }
 }
 
@@ -259,23 +259,11 @@
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.glass-card:hover {
-  border: 1px solid rgba(0, 0, 0, 0.11);
-  box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.09), 0 2px 6px 0 rgba(0, 0, 0, 0.05);
-  transform: translateY(-1px);
-}
-
 .dark .glass-card {
   background: rgba(20, 20, 35, 0.55);
   backdrop-filter: blur(25px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.07);
   box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.3), 0 1px 4px 0 rgba(0, 0, 0, 0.15);
-}
-
-.dark .glass-card:hover {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), 0 2px 8px 0 rgba(0, 0, 0, 0.2);
-  transform: translateY(-1px);
 }
 
 /* Neon glow effects — light mode is subtler, dark mode is full intensity */
@@ -394,4 +382,13 @@
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
+}
+
+@keyframes levelUpGlow {
+  0% { transform: scale(1); filter: brightness(1); }
+  30% { transform: scale(1.25) translateY(-2px); filter: brightness(1.5); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+.animate-level-up {
+  animation: levelUpGlow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }

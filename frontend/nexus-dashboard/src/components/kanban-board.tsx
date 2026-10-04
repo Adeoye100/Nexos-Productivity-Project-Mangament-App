@@ -156,7 +156,7 @@ function BoardColumn({
       {/* Column Header */}
       <div className="p-4 flex items-center justify-between border-b border-zinc-200/50 dark:border-zinc-800/50 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm">
         <div className="flex items-center gap-2">
-          <h3 className="font-mono text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+          <h3 className="font-mono text-xs font-bold font-semibold tracking-tight text-foreground">
             {column.title}
           </h3>
           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-800 font-mono text-[10px] text-zinc-600 dark:text-zinc-400">

@@ -12,7 +12,9 @@ const SYSTEM_PROMPT = `You are reviewing a short activity digest from a producti
 Give 2-4 brief, honest observations about patterns you notice.
 If the data is sparse (only a few days), say so plainly rather than overstating confidence.
 Never use clinical or diagnostic language (no 'burnout', 'depression', 'anxiety', etc.) — describe patterns only ('you've logged more hours than usual this week'), and let the user draw their own conclusions.
-Keep the tone observational and calm, not alarming.`;
+Keep the tone observational and calm, not alarming.
+
+For each Goal with a target date, give a brief, honest read on whether the current pace suggests it's on track, or that a revised timeline might be worth considering. Base this ONLY on the completion ratio and time elapsed provided — do not invent a specific completion date or percentage confidence. If there isn't enough history for a Goal (e.g. created only a day or two ago, or very few linked tasks), say so directly rather than guessing. Never state a predicted date with false precision — prefer language like 'at the current pace, this may take longer than the target' over a specific calculated date.`;
 
 router.post("/insights/generate", async (req, res) => {
   const { digest } = req.body as { digest?: string };

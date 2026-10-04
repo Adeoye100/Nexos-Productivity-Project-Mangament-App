@@ -190,7 +190,7 @@ export function HabitTracker() {
     let detail: string
     if (selectedHabitId) {
       const done = perHabitDateSets.get(selectedHabitId)?.has(cell.ds)
-      detail = done ? "✓ Completed" : "Not completed"
+      detail = done ? "Completed" : "Not completed"
     } else {
       const data = completionMap.get(cell.ds)
       if (data && data.count > 0) {
@@ -293,25 +293,25 @@ export function HabitTracker() {
             <p className="text-muted-foreground text-xl">Build lasting streaks, one day at a time</p>
           </div>
           <div className="flex gap-3">
-            <Card className="glass-card px-5 py-3 flex items-center gap-3">
+            <div className="group flex items-center gap-3 px-4 py-3 border-b border-border/20 last:border-0 hover:bg-muted/30 transition-colors">
               <Flame className="w-5 h-5 text-orange-400 flex-shrink-0" />
               <div>
                 <p className="text-2xl font-bold leading-none">{displayStreak.current}</p>
                 <p className="text-[11px] text-muted-foreground mt-0.5">day streak</p>
               </div>
-            </Card>
-            <Card className="glass-card px-5 py-3 flex items-center gap-3">
+            </div>
+            <div className="group flex items-center gap-3 px-4 py-3 border-b border-border/20 last:border-0 hover:bg-muted/30 transition-colors">
               <Trophy className="w-5 h-5 text-yellow-400 flex-shrink-0" />
               <div>
                 <p className="text-2xl font-bold leading-none">{displayStreak.longest}</p>
                 <p className="text-[11px] text-muted-foreground mt-0.5">best streak</p>
               </div>
-            </Card>
+            </div>
           </div>
         </div>
 
         {/* ── Heatmap card ─────────────────────────────────────────────────── */}
-        <Card className="glass-card p-6 mb-6 animate-slide-in-up delay-100">
+        <div className="glass-card p-6 mb-6 animate-slide-in-up delay-100">
           {/* View selector + edit toggle */}
           <div className="flex items-center justify-between mb-5 gap-3 flex-wrap">
             <div className="flex items-center gap-2 flex-wrap">
@@ -457,12 +457,12 @@ export function HabitTracker() {
               Click any past square to toggle this habit's completion for that day.
             </p>
           )}
-        </Card>
+        </div>
 
         {/* ── Today + Habit list ────────────────────────────────────────────── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Today's check-off */}
-          <Card className="glass-card p-6 animate-slide-in-up delay-200">
+          <div className="glass-card p-6 animate-slide-in-up delay-200">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-bold">Today</h2>
               <span className="text-xs text-muted-foreground">{todayLabel}</span>
@@ -518,10 +518,10 @@ export function HabitTracker() {
                 </div>
               </div>
             )}
-          </Card>
+          </div>
 
           {/* Active habits + add form */}
-          <Card className="glass-card p-6 animate-slide-in-up delay-300">
+          <div className="glass-card p-6 animate-slide-in-up delay-300">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-bold">Active Habits</h2>
               <button
@@ -668,7 +668,7 @@ export function HabitTracker() {
                 })}
               </div>
             )}
-          </Card>
+          </div>
         </div>
       </div>
     </div>

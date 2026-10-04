@@ -24,9 +24,9 @@ cp "$CMD_PALETTE" ".fix-backups/command-palette.tsx.bak4"
 echo "Backed up command-palette.tsx before round 4 edit."
 echo ""
 
-if grep -qE '^[[:space:]]*icon: "✨",[[:space:]]*$' "$CMD_PALETTE"; then
-  sed -i -E '/^[[:space:]]*icon: "✨",[[:space:]]*$/d' "$CMD_PALETTE"
-  echo "[fixed] Removed the invalid 'icon: \"✨\",' line from the addHabit() call."
+if grep -qE '^[[:space:]]*icon: "",[[:space:]]*$' "$CMD_PALETTE"; then
+  sed -i -E '/^[[:space:]]*icon: "",[[:space:]]*$/d' "$CMD_PALETTE"
+  echo "[fixed] Removed the invalid 'icon: \"\",' line from the addHabit() call."
 else
   echo "[not found] Couldn't find that exact icon line — check manually around addHabit() in $CMD_PALETTE."
 fi

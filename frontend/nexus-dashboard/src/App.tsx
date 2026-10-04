@@ -27,7 +27,6 @@ function BlockedDependencyWatcher() {
 
 // Pages
 import SyncTestPage from '@/pages/sync-test';
-import { WeatherDashboard } from '@/components/weather-dashboard';
 import { Navigation } from '@/components/navigation';
 import { OnboardingWrapper } from '@/components/onboarding-wrapper';
 import { BackgroundManager } from '@/components/background-manager';
@@ -38,17 +37,6 @@ import { HabitTracker } from '@/components/habit-tracker';
 import { CommandManager } from '@/components/command-manager';
 
 const queryClient = new QueryClient();
-
-function HomePage() {
-  return (
-    <main className="min-h-screen">
-      <BackgroundManager />
-      <Navigation />
-      <OnboardingWrapper />
-      <WeatherDashboard />
-    </main>
-  );
-}
 
 function TasksPage() {
   return (
@@ -136,8 +124,7 @@ function CommandsPage() {
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={HomePage} />
-      <Route path="/life" component={LifeDashboardPage} />
+      <Route path="/" component={LifeDashboardPage} />
       <Route path="/tasks" component={TasksPage} />
       <Route path="/assistant" component={AssistantPage} />
       <Route path="/habits" component={HabitsPage} />

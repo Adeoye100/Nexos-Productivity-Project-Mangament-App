@@ -7,7 +7,7 @@ const pingTimeout = 30000;
 // Map from topic-name to the set of clients subscribed to it.
 // This matches y-webrtc's own reference signaling server protocol —
 // see https://github.com/yjs/y-webrtc/blob/master/bin/server.js
-const topics = new Map<string, Set<WebSocket>>();
+export const topics = new Map<string, Set<WebSocket>>();
 
 function setIfUndefined<K, V>(map: Map<K, V>, key: K, createT: () => V): V {
   let value = map.get(key);
@@ -30,7 +30,7 @@ function send(conn: WebSocket, message: unknown) {
   }
 }
 
-function onConnection(conn: WebSocket) {
+export function onConnection(conn: WebSocket) {
   const subscribedTopics = new Set<string>();
   let closed = false;
   let pongReceived = true;
@@ -95,7 +95,11 @@ function onConnection(conn: WebSocket) {
           const receivers = topics.get(message.topic);
           if (receivers) {
             message.clients = receivers.size;
-            receivers.forEach((receiver) => send(receiver, message));
+            receivers.forEach((receiver) => {
+              if (receiver !== conn) {
+                send(receiver, message);
+              }
+            });
           }
         }
         break;

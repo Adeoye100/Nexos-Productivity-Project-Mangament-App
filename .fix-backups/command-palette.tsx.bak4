@@ -105,7 +105,7 @@ export function CommandPalette() {
               runCommand(() => {
                 addHabit({
                   name: "New Habit",
-                  icon: "✨",
+                  icon: "",
                   color: "blue",
                 })
                 setLocation("/habits")

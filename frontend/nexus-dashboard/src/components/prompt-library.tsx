@@ -122,7 +122,7 @@ export function PromptLibrary({ onSelectPrompt }: PromptLibraryProps) {
           <div key={category} className="space-y-1">
             <button 
               onClick={() => toggleCategory(category)}
-              className="flex items-center w-full text-xs font-semibold text-muted-foreground uppercase tracking-wider p-1 hover:text-foreground transition-colors"
+              className="flex items-center w-full text-xs font-semibold text-muted-foreground font-semibold tracking-tight p-1 hover:text-foreground transition-colors"
             >
               {expandedCategories[category] !== false ? <ChevronDown className="w-3 h-3 mr-1" /> : <ChevronRight className="w-3 h-3 mr-1" />}
               {category}

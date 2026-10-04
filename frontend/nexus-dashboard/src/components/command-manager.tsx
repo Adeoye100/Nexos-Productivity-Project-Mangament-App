@@ -220,7 +220,7 @@ export function CommandManager() {
               <div className="p-5 flex-1 flex flex-col gap-4">
                 <div className="flex justify-between items-start">
                   <div className="flex flex-wrap gap-2">
-                    <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-none px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider">
+                    <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-none px-2.5 py-0.5 rounded-md text-xs font-bold font-semibold tracking-tight">
                       {cmd.tool}
                     </Badge>
                     {cmd.isCustom && (

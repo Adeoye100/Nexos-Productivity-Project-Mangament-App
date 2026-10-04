@@ -181,7 +181,7 @@ export function LifeDashboard() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-accent" />
-            <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+            <h2 className="text-sm font-medium font-semibold tracking-tight text-foreground">
               AI Insights
             </h2>
           </div>
@@ -237,7 +237,7 @@ export function LifeDashboard() {
       <section className="space-y-3">
         <div className="flex items-center gap-2">
           <Target className="w-4 h-4 text-accent" />
-          <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+          <h2 className="text-sm font-medium font-semibold tracking-tight text-foreground">
             Active Goals
           </h2>
         </div>
@@ -259,7 +259,7 @@ export function LifeDashboard() {
               return (
                 <Card
                   key={goal.id}
-                  className="border-none shadow-md bg-background/40 backdrop-blur-sm p-4 sm:p-5"
+                  className="border border-border/40 shadow-sm bg-background/50 p-4 sm:p-5"
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="min-w-0">
@@ -326,7 +326,7 @@ export function LifeDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Flame className="w-4 h-4 text-orange-400" />
-              <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+              <h2 className="text-sm font-medium font-semibold tracking-tight text-foreground">
                 Habits
               </h2>
             </div>
@@ -334,10 +334,10 @@ export function LifeDashboard() {
               href="/habits"
               className="text-xs text-accent hover:underline flex items-center gap-1"
             >
-              Open tracker <ArrowRight className="w-3 h-3" />
+              Open tracker 
             </Link>
           </div>
-          <Card className="border-none shadow-md bg-background/40 backdrop-blur-sm p-4 sm:p-5">
+          <Card className="border border-border/40 shadow-sm bg-background/50 p-4 sm:p-5">
             <div className="grid grid-cols-3 gap-3">
               <div>
                 <div className="flex items-center gap-1.5 text-orange-400 mb-1">
@@ -381,7 +381,7 @@ export function LifeDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Sprout className="w-4 h-4 text-accent" />
-              <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+              <h2 className="text-sm font-medium font-semibold tracking-tight text-foreground">
                 Learning & Growth
               </h2>
             </div>
@@ -389,10 +389,10 @@ export function LifeDashboard() {
               href="/skills"
               className="text-xs text-accent hover:underline flex items-center gap-1"
             >
-              Full portfolio <ArrowRight className="w-3 h-3" />
+              Full portfolio 
             </Link>
           </div>
-          <Card className="border-none shadow-md bg-background/40 backdrop-blur-sm p-4 sm:p-5 space-y-3">
+          <div className="border-b border-border/40 pb-4 mb-4 space-y-3">
             <div className="flex items-baseline gap-2">
               <span className="text-sm text-muted-foreground">Overall</span>
               <span className="text-xl font-medium">Lv {generalLevel}</span>
@@ -424,7 +424,7 @@ export function LifeDashboard() {
                 })}
               </ul>
             )}
-          </Card>
+          </div>
         </section>
       </div>
 
@@ -432,7 +432,7 @@ export function LifeDashboard() {
       <section className="space-y-3">
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 text-accent" />
-          <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+          <h2 className="text-sm font-medium font-semibold tracking-tight text-foreground">
             This Week&apos;s Time
           </h2>
         </div>
@@ -440,7 +440,7 @@ export function LifeDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <TimeTrackerWidget />
 
-          <Card className="border-none shadow-md bg-background/40 backdrop-blur-sm p-4 sm:p-5">
+          <Card className="border border-border/40 shadow-sm bg-background/50 p-4 sm:p-5">
             <p className="text-3xl font-medium tabular-nums mb-1">
               {formatDuration(weekTime.total)}
             </p>

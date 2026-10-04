@@ -26,7 +26,9 @@ export function generateStandup(
   
   const githubInProgress = githubIssues.filter(issue => issue.state === 'open');
 
-  if (completedYesterday.length === 0 && habitsToday.length === 0 && inProgressTasks.length === 0 && githubInProgress.length === 0) {
+  const habitsYesterday = habitEntries.filter(e => e.date === yesterday.toISOString().split('T')[0] && e.completed);
+
+  if (completedYesterday.length === 0 && habitsToday.length === 0 && inProgressTasks.length === 0 && githubInProgress.length === 0 && habitsYesterday.length === 0) {
     return "Nothing logged yet today";
   }
 

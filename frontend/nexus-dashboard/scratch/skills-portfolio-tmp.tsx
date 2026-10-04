@@ -113,7 +113,7 @@ export function SkillsPortfolio() {
           <div>
             <p className="text-sm text-muted-foreground font-medium">Overall growth</p>
             <p className="text-2xl font-medium leading-none">
-              Level <span key={generalLevel} className="animate-level-up inline-block">{generalLevel}</span>
+              Level {generalLevel}
               <span className="text-sm text-muted-foreground font-normal ml-2">
                 {generalXp} XP
               </span>
@@ -260,7 +260,7 @@ function SkillCard({
   const progress = xpProgress(skill.xp)
 
   return (
-    <div className="border-b border-border/30 last:border-0 hover:bg-muted/10 transition-colors overflow-hidden">
+    <div className="border-b border-border/20 last:border-0 hover:bg-muted/10 transition-colors rounded-none bg-transparent">
       <button
         type="button"
         onClick={onToggle}
@@ -286,7 +286,7 @@ function SkillCard({
             )}
           </div>
           <div className="flex items-baseline gap-2 mb-2">
-            <span key={skill.level} className="text-3xl font-medium text-accent leading-none animate-level-up inline-block">
+            <span className="text-3xl font-medium text-accent leading-none">
               {skill.level}
             </span>
             <span className="text-xs text-muted-foreground">
@@ -355,6 +355,6 @@ function SkillCard({
           )}
         </div>
       )}
-    </div>
+    </Card>
   )
 }

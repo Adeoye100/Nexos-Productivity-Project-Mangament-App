@@ -13,20 +13,20 @@ Minimal Obsidian-style link graph connecting all feature notes. Open in Obsidian
 ## Productivity Modules
 ```mermaid
 graph LR
-  App[📱 App] --> Tasks[📝 Task Manager]
-  App --> Habits[🔥 Habit Tracker]
-  App --> Goals[🎯 Goals]
-  App --> Skills[🌱 Skills Portfolio]
-  App --> Time[⏱️ Time Tracker]
-  App --> AI[🤖 AI Assistant]
-  App --> Weather[🌤️ Weather]
-  App --> Cmd[⌨️ Command Manager]
-  App --> BG[🖼️ Background Manager]
-  App --> Notif[🔔 Notification Log]
-  App --> Settings[⚙️ Settings Panel]
-  App --> KB[⌨️ Keyboard Shortcuts]
-  App --> Sec[🔒 Security & Privacy]
-  App --> GitHub[🐙 GitHub Integration]
+  App[App] --> Tasks[Task Manager]
+  App --> Habits[Habit Tracker]
+  App --> Goals[Goals]
+  App --> Skills[Skills Portfolio]
+  App --> Time[Time Tracker]
+  App --> AI[AI Assistant]
+  App --> Weather[Weather]
+  App --> Cmd[Command Manager]
+  App --> BG[Background Manager]
+  App --> Notif[Notification Log]
+  App --> Settings[Settings Panel]
+  App --> KB[Keyboard Shortcuts]
+  App --> Sec[Security & Privacy]
+  App --> GitHub[GitHub Integration]
 ```
 
 ---

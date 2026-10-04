@@ -1,0 +1,5 @@
+# Cursor Agent Rules
+
+## Syntax and Style Requirements
+- NEVER use emojis in code syntax, JSX/HTML markup, variable/function names, strings, comments, commit messages, or documentation.
+- Use Lucide React icons or SVG primitives for visual indicators instead of emoji characters.

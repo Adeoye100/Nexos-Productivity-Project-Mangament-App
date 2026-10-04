@@ -99,5 +99,35 @@ export function generateDigest(
     });
   }
 
+  // 6. Goal Pacing (Active Goals)
+  const activeGoals = goals.filter(g => g.status !== 'completed');
+  if (activeGoals.length > 0) {
+    lines.push("\nActive Goals Pacing:");
+    activeGoals.forEach(g => {
+      const created = new Date(g.createdAt);
+      const daysSinceCreated = Math.max(0, Math.floor((today.getTime() - created.getTime()) / (1000 * 60 * 60 * 24)));
+      
+      const progress = deriveGoalProgress(g.id, tasks);
+      let progressText = "No linked tasks";
+      if (progress.kind === 'ratio') {
+        const completedTasks = Math.round((progress.percent / 100) * progress.total);
+        progressText = `${completedTasks}/${progress.total} linked tasks completed`;
+      }
+      
+      let pacingStr = `- Goal "${g.title}": Created ${daysSinceCreated} days ago. ${progressText}.`;
+      
+      if (g.targetDate) {
+        const target = new Date(g.targetDate);
+        const diffDays = Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        if (diffDays >= 0) {
+          pacingStr += ` ${diffDays} days remaining until target date.`;
+        } else {
+          pacingStr += ` Target date missed by ${Math.abs(diffDays)} days.`;
+        }
+      }
+      lines.push(pacingStr);
+    });
+  }
+
   return lines.join('\n');
 }

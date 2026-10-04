@@ -178,7 +178,7 @@ export function TaskManager() {
     if (!task.completed) {
       addNotification({
         type: "task_completed",
-        title: "Task completed! 🎉",
+        title: "Task completed!",
         message: `"${task.title}" has been marked as done.`,
       })
     }

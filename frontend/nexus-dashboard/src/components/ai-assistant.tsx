@@ -139,17 +139,17 @@ export function AIAssistant() {
               priority: (action.priority as any) || "Medium",
               completed: false,
             })
-            displayText += `\n\n✅ Task added: "${action.title}"`
+            displayText += `\n\nTask added: "${action.title}"`
           } else if (action.type === "complete_task" && action.id) {
             const target = tasks.find(t => t.id === action.id)
             if (target && !target.completed) {
               toggleComplete(action.id)
               addNotification({
                 type: "task_completed",
-                title: "Task completed via AI! 🎉",
+                title: "Task completed via AI!",
                 message: `"${target.title}" was marked done by the assistant.`,
               })
-              displayText += `\n\n✅ Task completed: "${target.title}"`
+              displayText += `\n\nTask completed: "${target.title}"`
             }
           }
         } catch { /* ignore malformed action */ }

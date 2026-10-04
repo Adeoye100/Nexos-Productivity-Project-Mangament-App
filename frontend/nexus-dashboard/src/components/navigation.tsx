@@ -34,8 +34,7 @@ type NavLink = {
 }
 
 const allLinks: NavLink[] = [
-  { href: "/",          label: "Weather",      mobileLabel: "Weather",  icon: Cloud },
-  { href: "/life",      label: "Life",          mobileLabel: "Life",     icon: Compass },
+  { href: "/",          label: "Life",          mobileLabel: "Life",     icon: Compass },
   { href: "/tasks",     label: "Tasks",         mobileLabel: "Tasks",    icon: CheckSquare },
   { href: "/assistant", label: "AI Assistant",  mobileLabel: "AI",       icon: MessageSquare },
   { href: "/habits",    label: "Habits",        mobileLabel: "Habits",   icon: LayoutGrid },
@@ -45,7 +44,7 @@ const allLinks: NavLink[] = [
 ]
 
 /** Primary mobile bottom-nav slots (order matches product spec) */
-const mobilePrimaryHrefs = ["/tasks", "/life", "/assistant"] as const
+const mobilePrimaryHrefs = ["/tasks", "/", "/assistant"] as const
 
 const mobilePrimaryLinks = mobilePrimaryHrefs
   .map((href) => allLinks.find((l) => l.href === href)!)

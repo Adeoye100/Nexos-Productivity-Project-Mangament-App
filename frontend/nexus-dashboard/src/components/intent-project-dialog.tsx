@@ -27,7 +27,7 @@ type Phase = "input" | "loading" | "preview"
 
 const VALID_PRIORITIES = new Set(["Low", "Medium", "High"])
 
-function toPreviewTasks(
+export function toPreviewTasks(
   tasks: { title: string; priority: string }[],
 ): IntentPreviewTask[] | null {
   if (!Array.isArray(tasks) || tasks.length === 0) return null

@@ -30,13 +30,13 @@ interface GeneratedPlan {
   tasks: GeneratedTask[];
 }
 
-function stripMarkdownFences(text: string): string {
+export function stripMarkdownFences(text: string): string {
   const trimmed = text.trim();
   const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
   return fenced ? fenced[1].trim() : trimmed;
 }
 
-function validatePlan(data: unknown): GeneratedPlan | null {
+export function validatePlan(data: unknown): GeneratedPlan | null {
   if (!data || typeof data !== "object") return null;
 
   const obj = data as Record<string, unknown>;
@@ -63,7 +63,7 @@ function validatePlan(data: unknown): GeneratedPlan | null {
   };
 }
 
-function parseAiJson(raw: string): GeneratedPlan | null {
+export function parseAiJson(raw: string): GeneratedPlan | null {
   try {
     const parsed: unknown = JSON.parse(stripMarkdownFences(raw));
     return validatePlan(parsed);

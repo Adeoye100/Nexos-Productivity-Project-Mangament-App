@@ -17,3 +17,4 @@ description: Use when styling any Nexos component — enforces Tailwind + CVA on
   the floating UI pass already applied to task-manager.tsx / kanban-board.tsx.
 - State: all interactive components must be controlled (reflect real 
   state), never defaultChecked/defaultValue-style uncontrolled patterns.
+- Emoji: Never use emojis anywhere in the codebase syntax, UI labels, text strings, comments, commit messages, or documentation. Always use clean text or SVG/Lucide icons.

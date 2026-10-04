@@ -137,11 +137,11 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
       className={cn(
         "group transition-all duration-300 overflow-hidden",
         isBoard 
-          ? "bg-[#0a0a0a] border-[#1a1a1a] hover:border-accent/40 shadow-lg" 
-          : "glass-card border-border/50 hover:border-primary/40",
+          ? "bg-[#0a0a0a] border-[#1a1a1a] shadow-lg rounded-xl" 
+          : "border-b border-border/40 hover:bg-muted/30 rounded-none bg-transparent shadow-none",
         task.completed && "opacity-60",
-        isSelected && (isBoard ? "border-accent ring-1 ring-accent/20 bg-accent/5" : "border-l-4 border-l-primary ring-1 ring-primary/20 bg-primary/5"),
-        isBlocked && !task.completed && "shadow-md ring-1 ring-amber-500/20"
+        isSelected && (isBoard ? "border-accent ring-1 ring-accent/20 bg-accent/5" : "border-l-4 border-l-primary bg-primary/5"),
+        isBlocked && !task.completed && "ring-1 ring-amber-500/20"
       )}
       onClick={onClick}
     >
@@ -180,9 +180,9 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
             ) : (
               <div className="flex flex-col gap-0.5">
                 <p className={cn(
-                  "font-semibold leading-snug break-words",
+                  "font-semibold leading-snug break-words transition-colors duration-500",
                   isBoard ? "text-sm text-zinc-100" : "text-base text-foreground",
-                  task.completed && "line-through text-muted-foreground"
+                  task.completed && "line-through text-muted-foreground decoration-muted-foreground/50"
                 )}>
                   {task.title}
                 </p>

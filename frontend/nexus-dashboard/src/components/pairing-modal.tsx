@@ -131,7 +131,7 @@ export const PairingModal = () => {
 
             {roomCode && (
               <div className="w-full mt-2 p-4 bg-secondary/50 rounded-xl border border-border flex flex-col items-center gap-3">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="text-xs font-semibold font-semibold tracking-tight text-foreground">
                   Your pairing code
                 </p>
                 <div 
