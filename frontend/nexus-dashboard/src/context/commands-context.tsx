@@ -1,3 +1,4 @@
+import { useAppMode } from "@/context/app-mode-context";
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo } from 'react';
 import { useTasks, TaskStatus } from './tasks-context';
 
@@ -52,30 +53,33 @@ const SEED_COMMANDS: CommandSnippet[] = [
 const CommandsContext = createContext<CommandsContextValue | null>(null);
 
 export function CommandsProvider({ children }: { children: ReactNode }) {
+  const { mode } = useAppMode();
+  const commandsKey = mode === 'developer' ? 'nexus-commands-dev' : 'nexus-commands';
   const [commands, setCommands] = useState<CommandSnippet[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const raw = localStorage.getItem('nexus-commands');
+    setLoaded(false);
+    const raw = localStorage.getItem(commandsKey);
     if (raw) {
       try {
         const parsed = JSON.parse(raw);
         setCommands(parsed);
       } catch (e) {
         console.error('Failed to parse commands', e);
-        setCommands(SEED_COMMANDS);
+        setCommands(mode === 'developer' ? [] : SEED_COMMANDS);
       }
     } else {
-      setCommands(SEED_COMMANDS);
+      setCommands(mode === 'developer' ? [] : SEED_COMMANDS);
     }
     setLoaded(true);
-  }, []);
+  }, [mode, commandsKey]);
 
   useEffect(() => {
     if (loaded) {
-      localStorage.setItem('nexus-commands', JSON.stringify(commands));
+      localStorage.setItem(commandsKey, JSON.stringify(commands));
     }
-  }, [commands, loaded]);
+  }, [commands, loaded, commandsKey]);
 
   const addCommand = useCallback((data: Omit<CommandSnippet, 'id' | 'isCustom'>): CommandSnippet => {
     const command: CommandSnippet = {

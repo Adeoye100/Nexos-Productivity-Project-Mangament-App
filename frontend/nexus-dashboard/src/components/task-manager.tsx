@@ -1,3 +1,4 @@
+import { useLocation } from "wouter";
 
 import { useState, useEffect, useRef } from "react"
 import { useVimNavigation } from "@/hooks/use-vim-navigation"
@@ -47,7 +48,8 @@ export function TaskManager() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false)
   const [settingReminderId, setSettingReminderId] = useState<string | null>(null)
   const [reminderInput, setReminderInput] = useState<string>("")
-  const [view, setView] = useState<"list" | "board">("list")
+  const [location] = useLocation();
+  const [view, setView] = useState<"list" | "board">(location === "/dev/kanban" ? "board" : "list")
   const [isRefreshing, setIsRefreshing] = useState(false)
   const addTaskInputRef = useRef<HTMLInputElement>(null)
   const githubConfig = getGitHubConfig()

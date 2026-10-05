@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode,
 import { getGitHubConfig, fetchGitHubIssues, GITHUB_LABEL_MAPPING } from '@/lib/github';
 import { useToast } from '@/hooks/use-toast';
 import { useYMap } from '@/lib/sync/useYMap';
+import { useAppMode } from '@/context/app-mode-context';
 import { useSkills } from '@/context/skills-context';
 import { TASK_XP } from '@/lib/xp';
 
@@ -44,9 +45,10 @@ interface TasksContextValue {
 const TasksContext = createContext<TasksContextValue | null>(null);
 
 export function TasksProvider({ children }: { children: ReactNode }) {
+  const { mode } = useAppMode();
   const { toast } = useToast();
   const { awardActivityXp } = useSkills();
-  const { state: tasksMap, set: setTaskInMap, remove: removeTaskFromMap } = useYMap<Task>("tasks");
+  const { state: tasksMap, set: setTaskInMap, remove: removeTaskFromMap } = useYMap<Task>(mode === "developer" ? "tasks-dev" : "tasks");
 
   const tasks = useMemo(() => {
     return Object.values(tasksMap)

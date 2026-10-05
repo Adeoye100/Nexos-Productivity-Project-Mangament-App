@@ -6,6 +6,7 @@ import {
   useMemo,
 } from "react"
 import { useYMap } from "@/lib/sync/useYMap"
+import { useAppMode } from "@/context/app-mode-context"
 
 export type GoalStatus = "active" | "completed" | "abandoned"
 
@@ -32,11 +33,12 @@ interface GoalsContextValue {
 const GoalsContext = createContext<GoalsContextValue | null>(null)
 
 export function GoalsProvider({ children }: { children: ReactNode }) {
+  const { mode } = useAppMode();
   const {
     state: goalsMap,
     set: setGoalInMap,
     remove: removeGoalFromMap,
-  } = useYMap<Goal>("goals")
+  } = useYMap<Goal>(mode === "developer" ? "goals-dev" : "goals")
 
   const goals = useMemo(() => {
     return Object.values(goalsMap).sort(

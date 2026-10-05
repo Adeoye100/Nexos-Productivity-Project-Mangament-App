@@ -6,6 +6,7 @@ import {
   useMemo,
 } from "react"
 import { useYMap } from "@/lib/sync/useYMap"
+import { useAppMode } from "@/context/app-mode-context"
 import { toDateString } from "@/lib/habit-streak"
 
 export interface TimeEntry {
@@ -47,11 +48,12 @@ function newId() {
 }
 
 export function TimeEntriesProvider({ children }: { children: ReactNode }) {
+  const { mode } = useAppMode();
   const {
     state: entriesMap,
     set: setEntryInMap,
     remove: removeEntryFromMap,
-  } = useYMap<TimeEntry>("time-entries")
+  } = useYMap<TimeEntry>(mode === "developer" ? "time-entries-dev" : "time-entries")
 
   const entries = useMemo(() => {
     return Object.values(entriesMap).sort(

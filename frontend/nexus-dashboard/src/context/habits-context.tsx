@@ -1,3 +1,4 @@
+import { useAppMode } from "@/context/app-mode-context";
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 
 export type TargetFrequency = 'daily' | 'weekly' | 'custom';
@@ -76,38 +77,42 @@ function generateSampleEntries(): HabitEntry[] {
 
 // ── Provider ─────────────────────────────────────────────────────────────────
 export function HabitsProvider({ children }: { children: ReactNode }) {
+  const { mode } = useAppMode();
   const [habits, setHabits]   = useState<Habit[]>([]);
   const [entries, setEntries] = useState<HabitEntry[]>([]);
   const [loaded, setLoaded]   = useState(false);
+  const habitsKey = mode === 'developer' ? 'nexus-habits-dev' : 'nexus-habits';
+  const entriesKey = mode === 'developer' ? 'nexus-habit-entries-dev' : 'nexus-habit-entries';
 
   // Load from localStorage; seed sample data on first visit
   useEffect(() => {
-    const rawHabits  = localStorage.getItem('nexus-habits');
-    const rawEntries = localStorage.getItem('nexus-habit-entries');
+    setLoaded(false);
+    const rawHabits  = localStorage.getItem(habitsKey);
+    const rawEntries = localStorage.getItem(entriesKey);
 
     if (rawHabits) {
       try { setHabits(JSON.parse(rawHabits)); } catch { /* ignore */ }
     } else {
-      setHabits(SAMPLE_HABITS);
+      setHabits(mode === 'developer' ? [] : SAMPLE_HABITS);
     }
 
     if (rawEntries) {
       try { setEntries(JSON.parse(rawEntries)); } catch { /* ignore */ }
     } else {
-      setEntries(generateSampleEntries());
+      setEntries(mode === 'developer' ? [] : generateSampleEntries());
     }
 
     setLoaded(true);
-  }, []);
+  }, [mode, habitsKey, entriesKey]);
 
   // Persist
   useEffect(() => {
-    if (loaded) localStorage.setItem('nexus-habits', JSON.stringify(habits));
-  }, [habits, loaded]);
+    if (loaded) localStorage.setItem(habitsKey, JSON.stringify(habits));
+  }, [habits, loaded, habitsKey]);
 
   useEffect(() => {
-    if (loaded) localStorage.setItem('nexus-habit-entries', JSON.stringify(entries));
-  }, [entries, loaded]);
+    if (loaded) localStorage.setItem(entriesKey, JSON.stringify(entries));
+  }, [entries, loaded, entriesKey]);
 
   const addHabit = useCallback((data: Omit<Habit, 'id' | 'createdAt'>) => {
     const habit: Habit = {

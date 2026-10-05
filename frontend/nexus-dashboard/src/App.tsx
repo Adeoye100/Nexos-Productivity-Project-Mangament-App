@@ -122,11 +122,14 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={LifeDashboardPage} />
+      <Route path="/dev/deadlines" component={LifeDashboardPage} />
       <Route path="/tasks" component={TasksPage} />
+      <Route path="/dev/kanban" component={TasksPage} />
       <Route path="/assistant" component={AssistantPage} />
       <Route path="/habits" component={HabitsPage} />
       <Route path="/skills" component={SkillsPage} />
       <Route path="/commands" component={CommandsPage} />
+      <Route path="/dev/standup" component={CommandsPage} />
       <Route path="/settings" component={SettingsPage} />
       <Route path="/sync-test" component={SyncTestPage} />
       <Route component={NotFound} />

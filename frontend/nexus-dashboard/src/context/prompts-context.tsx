@@ -1,5 +1,6 @@
 import { createContext, useContext, useCallback, ReactNode, useMemo } from 'react';
 import { useYMap } from '@/lib/sync/useYMap';
+import { useAppMode } from '@/context/app-mode-context';
 
 export interface Prompt {
   id: string;
@@ -19,7 +20,8 @@ interface PromptsContextValue {
 const PromptsContext = createContext<PromptsContextValue | null>(null);
 
 export function PromptsProvider({ children }: { children: ReactNode }) {
-  const { state: promptsMap, set: setPromptInMap, remove: removePromptFromMap } = useYMap<Prompt>("prompts");
+  const { mode } = useAppMode();
+  const { state: promptsMap, set: setPromptInMap, remove: removePromptFromMap } = useYMap<Prompt>(mode === "developer" ? "prompts-dev" : "prompts");
 
   const prompts = useMemo(() => {
     return Object.values(promptsMap).sort((a, b) => 

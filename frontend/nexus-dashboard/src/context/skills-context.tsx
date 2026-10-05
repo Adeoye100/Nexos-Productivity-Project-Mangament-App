@@ -6,6 +6,7 @@ import {
   useMemo,
 } from "react"
 import { useYMap } from "@/lib/sync/useYMap"
+import { useAppMode } from "@/context/app-mode-context"
 import { levelFromXp } from "@/lib/xp"
 
 export interface Skill {
@@ -60,11 +61,12 @@ function isWellFormedUrl(url: string): boolean {
 export { isWellFormedUrl }
 
 export function SkillsProvider({ children }: { children: ReactNode }) {
+  const { mode } = useAppMode();
   const {
     state: skillsMap,
     set: setSkillInMap,
     remove: removeSkillFromMap,
-  } = useYMap<Skill>("skills")
+  } = useYMap<Skill>(mode === "developer" ? "skills-dev" : "skills")
 
   const {
     state: proofsMap,
