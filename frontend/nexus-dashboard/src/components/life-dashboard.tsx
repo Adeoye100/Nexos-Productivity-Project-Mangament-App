@@ -161,7 +161,8 @@ export function LifeDashboard() {
     <div className="container mx-auto px-4 max-w-5xl space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl sm:text-5xl font-medium tracking-tight mb-2">
+          <p className="font-mono text-xs uppercase tracking-wider text-muted-foreground mb-2">Command Center</p>
+          <h1 className="text-4xl sm:text-5xl font-serif tracking-tight mb-2">
             Life Dashboard
           </h1>
           <p className="text-muted-foreground text-base sm:text-lg">
@@ -169,7 +170,7 @@ export function LifeDashboard() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => setGoalOpen(true)} className="shrink-0 shadow-sm">
+          <Button onClick={() => setGoalOpen(true)} className="shrink-0 shadow-sm font-mono uppercase tracking-wider text-xs">
             <Plus className="w-4 h-4 mr-2" />
             New Goal
           </Button>
@@ -180,8 +181,8 @@ export function LifeDashboard() {
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-accent" />
-            <h2 className="text-sm font-medium font-semibold tracking-tight text-foreground">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <h2 className="font-mono text-[11px] uppercase tracking-wider font-semibold text-foreground">
               AI Insights
             </h2>
           </div>
@@ -205,7 +206,7 @@ export function LifeDashboard() {
         </div>
 
         {!latestInsight ? (
-          <Card className="border-none shadow-md bg-background/30 backdrop-blur-sm p-8 text-center">
+          <Card className="shadow-sm border-border bg-card p-8 text-center">
             <p className="text-muted-foreground mb-4 max-w-md mx-auto">
               Get an AI-powered summary of your recent productivity patterns based on your tasks, habits, and time logs.
             </p>
@@ -223,7 +224,7 @@ export function LifeDashboard() {
             </Button>
           </Card>
         ) : (
-          <Card className="border-none shadow-md bg-background/40 backdrop-blur-sm p-6 overflow-hidden">
+          <Card className="shadow-sm border-border bg-card p-6 overflow-hidden">
             <div className="prose prose-sm dark:prose-invert prose-p:leading-relaxed max-w-none text-foreground">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {latestInsight.content}
@@ -236,14 +237,14 @@ export function LifeDashboard() {
       {/* Active Goals */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <Target className="w-4 h-4 text-accent" />
-          <h2 className="text-sm font-medium font-semibold tracking-tight text-foreground">
+          <Target className="w-4 h-4 text-primary" />
+          <h2 className="font-mono text-[11px] uppercase tracking-wider font-semibold text-foreground">
             Active Goals
           </h2>
         </div>
 
         {activeGoals.length === 0 ? (
-          <Card className="border-none shadow-md bg-background/30 backdrop-blur-sm p-8 text-center">
+          <Card className="shadow-sm border-border bg-card p-8 text-center">
             <p className="text-muted-foreground mb-3">
               No active goals yet. Create one, then link tasks from the Tasks page.
             </p>
@@ -259,11 +260,11 @@ export function LifeDashboard() {
               return (
                 <Card
                   key={goal.id}
-                  className="border border-border/40 shadow-sm bg-background/50 p-4 sm:p-5"
+                  className="shadow-sm border-border bg-card p-4 sm:p-5"
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="min-w-0">
-                      <h3 className="font-medium truncate">{goal.title}</h3>
+                      <h3 className="text-lg font-serif truncate">{goal.title}</h3>
                       {goal.description && (
                         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
                           {goal.description}
@@ -326,7 +327,7 @@ export function LifeDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Flame className="w-4 h-4 text-orange-400" />
-              <h2 className="text-sm font-medium font-semibold tracking-tight text-foreground">
+              <h2 className="font-mono text-[11px] uppercase tracking-wider font-semibold text-foreground">
                 Habits
               </h2>
             </div>
@@ -337,7 +338,7 @@ export function LifeDashboard() {
               Open tracker 
             </Link>
           </div>
-          <Card className="border border-border/40 shadow-sm bg-background/50 p-4 sm:p-5">
+          <Card className="shadow-sm border-border bg-card p-4 sm:p-5">
             <div className="grid grid-cols-3 gap-3">
               <div>
                 <div className="flex items-center gap-1.5 text-orange-400 mb-1">
@@ -380,8 +381,8 @@ export function LifeDashboard() {
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sprout className="w-4 h-4 text-accent" />
-              <h2 className="text-sm font-medium font-semibold tracking-tight text-foreground">
+              <Sprout className="w-4 h-4 text-primary" />
+              <h2 className="font-mono text-[11px] uppercase tracking-wider font-semibold text-foreground">
                 Learning & Growth
               </h2>
             </div>
@@ -431,8 +432,8 @@ export function LifeDashboard() {
       {/* Time */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4 text-accent" />
-          <h2 className="text-sm font-medium font-semibold tracking-tight text-foreground">
+          <Clock className="w-4 h-4 text-primary" />
+          <h2 className="font-mono text-[11px] uppercase tracking-wider font-semibold text-foreground">
             This Week&apos;s Time
           </h2>
         </div>
@@ -440,7 +441,7 @@ export function LifeDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <TimeTrackerWidget />
 
-          <Card className="border border-border/40 shadow-sm bg-background/50 p-4 sm:p-5">
+          <Card className="shadow-sm border-border bg-card p-4 sm:p-5">
             <p className="text-3xl font-medium tabular-nums mb-1">
               {formatDuration(weekTime.total)}
             </p>

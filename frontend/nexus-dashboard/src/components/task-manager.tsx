@@ -257,7 +257,7 @@ export function TaskManager() {
             </Button>
           )}
           <Tabs value={view} onValueChange={(v) => setView(v as "list" | "board")} className="w-auto">
-            <TabsList className="bg-background/30 backdrop-blur-sm border border-border/50">
+            <TabsList className="bg-card  border border-border/50">
               <TabsTrigger value="list" className="gap-2">
                 <LayoutList className="w-4 h-4" />
                 List
@@ -284,13 +284,13 @@ export function TaskManager() {
       {/* AI Suggestion */}
       {aiSuggestion && (
         <div className="mb-8 animate-slide-in-up delay-100">
-          <Card className="glass-card p-6 border-accent/30 border-t-[0px] border-r-[0px] border-b-[0px] border-l-[0px]">
+          <Card className="glass-card p-6 border-border border-t-[0px] border-r-[0px] border-b-[0px] border-l-[0px]">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center flex-shrink-0">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="font-bold mb-2 text-accent text-lg">AI Suggestion</h3>
+                <h3 className="font-bold mb-2 text-primary text-lg">AI Suggestion</h3>
                 <p className="text-foreground leading-relaxed text-base">{aiSuggestion}</p>
               </div>
             </div>
@@ -300,7 +300,7 @@ export function TaskManager() {
 
       {/* Add Task Form */}
       <div className="animate-slide-in-up delay-200">
-        <Card className="glass-card p-6 border-primary/30 mb-8 border-t-[0px] border-r-[0px] border-b-[0px] border-l-[0px]">
+        <Card className="glass-card p-6 border-border mb-8 border-t-[0px] border-r-[0px] border-b-[0px] border-l-[0px]">
           <div className="flex flex-col gap-4">
             <div className="flex flex-col md:flex-row gap-4">
               <Input
@@ -309,7 +309,7 @@ export function TaskManager() {
                 value={newTask}
                 onChange={e => setNewTask(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && handleAddTask()}
-                className="flex-1 bg-background/30 border-border/50 backdrop-blur-sm text-foreground placeholder:text-muted-foreground"
+                className="flex-1 bg-card border-border/50  text-foreground placeholder:text-muted-foreground"
               />
               <AddButton 
                 onClick={handleAddTask} 
@@ -321,7 +321,7 @@ export function TaskManager() {
           <select
             value={selectedCategory}
             onChange={e => setSelectedCategory(e.target.value)}
-            className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-background/30 border border-border/50 text-foreground backdrop-blur-sm min-h-[44px]"
+            className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-card border border-border/50 text-foreground  min-h-[44px]"
           >
             {categories.map(cat => (
               <option key={cat} value={cat}>{cat}</option>
@@ -330,7 +330,7 @@ export function TaskManager() {
           <select
             value={selectedPriority}
             onChange={e => setSelectedPriority(e.target.value as Priority)}
-            className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-background/30 border border-border/50 text-foreground backdrop-blur-sm min-h-[44px]"
+            className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-card border border-border/50 text-foreground  min-h-[44px]"
           >
             {priorities.map(p => (
               <option key={p} value={p}>{p} Priority</option>
@@ -339,7 +339,7 @@ export function TaskManager() {
           <select
             value={selectedSkillId}
             onChange={e => setSelectedSkillId(e.target.value)}
-            className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-background/30 border border-border/50 text-foreground backdrop-blur-sm min-h-[44px]"
+            className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-card border border-border/50 text-foreground  min-h-[44px]"
             title="Related skill (optional)"
           >
             <option value="">No related skill</option>
@@ -350,7 +350,7 @@ export function TaskManager() {
           <select
             value={selectedGoalId}
             onChange={e => setSelectedGoalId(e.target.value)}
-            className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-background/30 border border-border/50 text-foreground backdrop-blur-sm min-h-[44px]"
+            className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-card border border-border/50 text-foreground  min-h-[44px]"
             title="Related goal (optional)"
           >
             <option value="">No related goal</option>
@@ -358,7 +358,7 @@ export function TaskManager() {
               <option key={g.id} value={g.id}>{g.title}</option>
             ))}
           </select>
-          <div className="flex-1 md:flex-none flex items-center gap-2 bg-background/30 border border-border/50 rounded-xl px-3 backdrop-blur-sm min-h-[44px]">
+          <div className="flex-1 md:flex-none flex items-center gap-2 bg-card border border-border/50 rounded-xl px-3  min-h-[44px]">
             <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
             <Input
               type="datetime-local"
@@ -368,7 +368,7 @@ export function TaskManager() {
               title="Due date"
             />
           </div>
-          <div className="flex-1 md:flex-none flex items-center gap-2 bg-background/30 border border-border/50 rounded-xl px-3 backdrop-blur-sm min-h-[44px]">
+          <div className="flex-1 md:flex-none flex items-center gap-2 bg-card border border-border/50 rounded-xl px-3  min-h-[44px]">
             <Bell className="w-4 h-4 text-muted-foreground flex-shrink-0" />
             <Input
               type="datetime-local"
@@ -406,7 +406,7 @@ export function TaskManager() {
               "rounded-xl font-semibold transition-all duration-300",
               filterCategory === cat
                 ? "bg-primary text-primary-foreground"
-                : "glass border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/30",
+                : "glass border-border/50 text-muted-foreground hover:text-foreground hover:border-border",
             )}
           >
             {cat}
@@ -415,7 +415,7 @@ export function TaskManager() {
         <Button
           variant="outline"
           onClick={exportTasks}
-          className="ml-auto glass border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/30 rounded-xl font-semibold bg-transparent"
+          className="ml-auto glass border-border/50 text-muted-foreground hover:text-foreground hover:border-border rounded-xl font-semibold bg-transparent"
         >
           <Download className="w-4 h-4 mr-2" />
           Export
@@ -446,7 +446,7 @@ export function TaskManager() {
                     <Button
                       variant="outline"
                       onClick={() => document.querySelector<HTMLInputElement>('input[placeholder="Add a new task..."]')?.focus()}
-                      className="border-primary/30 text-primary hover:bg-primary/10 rounded-xl"
+                      className="border-border text-primary hover:bg-primary/10 rounded-xl"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Add your first task

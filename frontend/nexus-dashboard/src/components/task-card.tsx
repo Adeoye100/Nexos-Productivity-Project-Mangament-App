@@ -140,7 +140,7 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
           ? "bg-[#0a0a0a] border-[#1a1a1a] shadow-lg rounded-xl" 
           : "border-b border-border/40 hover:bg-muted/30 rounded-none bg-transparent shadow-none",
         task.completed && "opacity-60",
-        isSelected && (isBoard ? "border-accent ring-1 ring-accent/20 bg-accent/5" : "border-l-4 border-l-primary bg-primary/5"),
+        isSelected && (isBoard ? "border-accent ring-1 ring-primary/20 bg-primary/5" : "border-l-4 border-l-primary bg-primary/5"),
         isBlocked && !task.completed && "ring-1 ring-amber-500/20"
       )}
       onClick={onClick}
@@ -172,7 +172,7 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
                 }}
                 className={cn(
                   "border-border",
-                  isBoard ? "bg-black/50" : "bg-background/50"
+                  isBoard ? "bg-card" : "bg-background/50"
                 )}
                 autoFocus
                 onClick={(e) => e.stopPropagation()}
@@ -180,7 +180,7 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
             ) : (
               <div className="flex flex-col gap-0.5">
                 <p className={cn(
-                  "font-semibold leading-snug break-words transition-colors duration-500",
+                  "font-serif text-lg leading-snug break-words transition-colors duration-500",
                   isBoard ? "text-sm text-zinc-100" : "text-base text-foreground",
                   task.completed && "line-through text-muted-foreground decoration-muted-foreground/50"
                 )}>
@@ -235,8 +235,8 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
                       }
                     }}
                     className={cn(
-                      "h-7 w-7 p-0 text-muted-foreground hover:text-accent", 
-                      task.reminderAt && !task.reminderNotified && "text-accent",
+                      "h-7 w-7 p-0 text-muted-foreground hover:text-primary", 
+                      task.reminderAt && !task.reminderNotified && "text-primary",
                       isBoard && "hover:bg-zinc-800"
                     )}
                     title="Set reminder"
@@ -256,7 +256,7 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
                         <MoreVertical className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="glass-strong border-primary/20">
+                    <DropdownMenuContent align="end" className="bg-card border-border">
                       <DropdownMenuItem onClick={openBlockLink}>
                         <Link2 className="w-4 h-4 mr-2" /> Link GitHub Block
                       </DropdownMenuItem>
@@ -314,7 +314,7 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
             {task.priority}
           </Badge>
 
-          <Badge variant="secondary" className={cn("text-[10px] font-normal h-5 px-1.5", isBoard && "bg-zinc-800 text-zinc-300")}>
+          <Badge variant="secondary" className={cn("font-mono text-[9px] uppercase tracking-wider h-5 px-1.5", isBoard && "bg-zinc-800 text-zinc-300")}>
             {task.category}
           </Badge>
 
@@ -329,7 +329,7 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
                 })
               }}
               className={cn(
-                "text-[10px] h-5 px-1.5 rounded-md bg-accent/10 text-accent border-0 max-w-[9rem]",
+                "text-[10px] h-5 px-1.5 rounded-md bg-primary/10 text-primary border-0 max-w-[9rem]",
                 isBoard && "bg-zinc-800 text-zinc-300"
               )}
               title="Related skill"
@@ -369,7 +369,7 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
           )}
 
           {task.githubIssueId && (
-            <Badge variant="outline" className="text-[10px] font-normal h-5 px-1.5 border-slate-700 bg-slate-900/50 text-slate-300 gap-1">
+            <Badge variant="outline" className="font-mono text-[9px] uppercase tracking-wider h-5 px-1.5 border-slate-700 bg-slate-900/50 text-slate-300 gap-1">
               <Github className="w-2.5 h-2.5" />
               GitHub
               {task.githubUrl && (
@@ -400,7 +400,7 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
               variant="outline"
               onClick={handleCheckStatus}
               disabled={checkingStatus}
-              className="h-8 text-[10px] border-border/50 bg-background/30 backdrop-blur-sm"
+              className="h-8 text-[10px] border-border/50 bg-card "
             >
               <RefreshCw className={cn("w-3 h-3 mr-1.5", checkingStatus && "animate-spin")} />
               Check Status
@@ -435,7 +435,7 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
                 placeholder="owner/repo#42"
                 className={cn(
                   "h-8 text-xs border-border/50 flex-1 min-w-[10rem]",
-                  isBoard ? "bg-black/50" : "bg-background/30 backdrop-blur-sm",
+                  isBoard ? "bg-card" : "bg-card ",
                   blockRefError && "border-destructive/60"
                 )}
                 autoFocus
@@ -468,11 +468,11 @@ export function TaskCard({ task, isSelected, onClick, variant = "list" }: TaskCa
               type="datetime-local"
               value={reminderInput}
               onChange={e => setReminderInput(e.target.value)}
-              className={cn("h-8 text-[10px] border-accent/30 w-auto", isBoard ? "bg-black/50" : "bg-background/50")}
+              className={cn("h-8 text-[10px] border-accent/30 w-auto", isBoard ? "bg-card" : "bg-background/50")}
               autoFocus
               onClick={(e) => e.stopPropagation()}
             />
-            <Button size="sm" onClick={(e) => { e.stopPropagation(); saveReminder(); }} className="h-8 text-[10px] bg-accent hover:bg-accent/90">
+            <Button size="sm" onClick={(e) => { e.stopPropagation(); saveReminder(); }} className="h-8 text-[10px] bg-primary hover:bg-primary/90">
               Set
             </Button>
             <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setSettingReminderId(null); }} className="h-8 text-[10px]">
