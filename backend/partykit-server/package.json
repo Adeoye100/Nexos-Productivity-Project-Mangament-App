@@ -1,0 +1,17 @@
+{
+  "name": "partykit-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "partykit dev",
+    "test": "vitest run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "partykit": "^0.0.115"
+  }
+}

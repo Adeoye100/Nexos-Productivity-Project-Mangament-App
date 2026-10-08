@@ -127,11 +127,11 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:4000',
+        target: 'http://localhost:1999',
         changeOrigin: true,
       },
       '/signaling': {
-        target: 'ws://localhost:4000',
+        target: 'ws://localhost:1999',
         ws: true,
         changeOrigin: true,
       },
@@ -141,11 +141,11 @@ export default defineConfig({
     port,
     proxy: {
       '/api': {
-        target: 'http://localhost:4000',
+        target: 'http://localhost:1999',
         changeOrigin: true,
       },
       '/signaling': {
-        target: 'ws://localhost:4000',
+        target: 'ws://localhost:1999',
         ws: true,
         changeOrigin: true,
       },

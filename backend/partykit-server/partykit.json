@@ -1,0 +1,4 @@
+{
+  "name": "nexos-signaling",
+  "main": "src/server.ts"
+}
