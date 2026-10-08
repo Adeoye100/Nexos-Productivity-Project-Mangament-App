@@ -78,6 +78,44 @@ export function StandupGenerator() {
     }
   };
 
+  const [repoStandupOutput, setRepoStandupOutput] = useState("");
+  const [isGeneratingRepo, setIsGeneratingRepo] = useState(false);
+
+  const handleGenerateRepoStandup = async () => {
+    setIsGeneratingRepo(true);
+    setRepoStandupOutput("");
+    try {
+      // Import on demand to avoid breaking SSR or early evaluation if github.ts has issues
+      const { getGitHubConfig, fetchGitHubCommits } = await import('@/lib/github');
+      const config = getGitHubConfig();
+      if (!config) {
+        throw new Error("GitHub is not connected. Add a token in Settings.");
+      }
+
+      const commits = await fetchGitHubCommits(config.token, config.repo);
+      const recentCommits = commits.slice(0, 10).map(c => `- ${c.commit.message} (${c.commit.author.name})`).join('\n');
+      
+      const prompt = `Here are the most recent commits from the connected repository:\n\n${recentCommits}\n\nPlease generate a concise, professional daily standup summary (what was done, what might be next) based solely on these commits.`;
+      
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: prompt }]
+        })
+      });
+
+      if (!response.ok) throw new Error("Failed to generate repo standup");
+
+      const data = await response.json();
+      setRepoStandupOutput(data.message || "No response generated.");
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "Generation failed", description: e.message });
+    } finally {
+      setIsGeneratingRepo(false);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 relative z-10 max-w-4xl">
       <div className="mb-8 animate-slide-in-up">
@@ -104,6 +142,13 @@ export function StandupGenerator() {
           className={cn("rounded-xl font-semibold", activeTab === "brief" ? "bg-primary text-primary-foreground" : "")}
         >
           <Bot className="w-4 h-4 mr-2" /> AI Task Brief
+        </Button>
+        <Button 
+          variant={activeTab === "repo" ? "default" : "outline"} 
+          onClick={() => setActiveTab("repo" as any)}
+          className={cn("rounded-xl font-semibold", activeTab === "repo" ? "bg-primary text-primary-foreground" : "")}
+        >
+          <Bot className="w-4 h-4 mr-2" /> Repo Standup
         </Button>
       </div>
 
@@ -192,6 +237,39 @@ export function StandupGenerator() {
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        )}
+        {activeTab === "repo" as any && (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">AI Repo Standup</h2>
+              <Button variant="ghost" size="sm" onClick={() => handleCopy(repoStandupOutput)} disabled={!repoStandupOutput}>
+                {copied ? <Check className="w-4 h-4 mr-2 text-green-500" /> : <Copy className="w-4 h-4 mr-2" />}
+                Copy
+              </Button>
+            </div>
+            
+            <div className="flex justify-center mb-4">
+              <Button onClick={handleGenerateRepoStandup} disabled={isGeneratingRepo} className="w-full font-semibold">
+                {isGeneratingRepo ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Bot className="w-4 h-4 mr-2" />}
+                Generate Standup from GitHub Commits
+              </Button>
+            </div>
+
+            <div className="min-h-[300px] h-full p-4 rounded-lg bg-background/50 border border-border/50 font-mono text-sm whitespace-pre-wrap overflow-y-auto">
+              {isGeneratingRepo ? (
+                <div className="h-full flex flex-col items-center justify-center text-muted-foreground opacity-50">
+                  <Loader2 className="w-8 h-8 animate-spin mb-4" />
+                  <p>AI is fetching commits and generating standup...</p>
+                </div>
+              ) : repoStandupOutput ? (
+                repoStandupOutput
+              ) : (
+                <div className="h-full flex items-center justify-center text-muted-foreground/50 italic text-center">
+                  Click generate to connect to GitHub and summarize recent commits.
+                </div>
+              )}
             </div>
           </div>
         )}
