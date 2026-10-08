@@ -1,4 +1,3 @@
-
 import { Task } from '@/context/tasks-context';
 import { HabitEntry, Habit } from '@/context/habits-context';
 import { GitHubIssue } from '@/lib/github';
@@ -78,4 +77,17 @@ export function generateStandup(
   }
 
   return markdown;
+}
+
+export function generateTaskBriefContext(tasks: Task[]): string {
+  if (tasks.length === 0) return "No tasks provided.";
+
+  const context = tasks.map((t, idx) => {
+    let text = `${idx + 1}. Task: ${t.title}\n`;
+    if (t.priority) text += `   Priority: ${t.priority}\n`;
+    if (t.blockedByRef) text += `   Blocked By: ${t.blockedByRef}\n`;
+    return text;
+  }).join("\n");
+
+  return `I have the following tasks selected for execution:\n\n${context}\n\nPlease generate a clear, human-readable natural language instruction brief for a human collaborator or a coding agent to execute these tasks. Do not just use bullet points. Make it actionable and cohesive.`;
 }

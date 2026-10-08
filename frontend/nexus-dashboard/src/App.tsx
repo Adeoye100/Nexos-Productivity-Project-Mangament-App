@@ -12,6 +12,7 @@ import { NotificationsProvider } from '@/context/notifications-context';
 import { HabitsProvider } from '@/context/habits-context';
 import { PromptsProvider } from '@/context/prompts-context';
 import { CommandsProvider } from '@/context/commands-context';
+import { NotesProvider } from '@/context/notes-context';
 import { SkillsProvider } from '@/context/skills-context';
 import { GoalsProvider } from '@/context/goals-context';
 import { TimeEntriesProvider } from '@/context/time-entries-context';
@@ -35,6 +36,9 @@ import { AIAssistant } from '@/components/ai-assistant';
 import { SettingsPanel } from '@/components/settings-panel';
 import { HabitTracker } from '@/components/habit-tracker';
 import { CommandManager } from '@/components/command-manager';
+import { NotesManager } from '@/components/notes-manager';
+import { StandupGenerator } from '@/components/standup-generator';
+import { GitHubActivity } from "@/components/github-activity";
 
 const queryClient = new QueryClient();
 
@@ -70,8 +74,6 @@ function SettingsPage() {
     </main>
   );
 }
-
-import { GitHubActivity } from "@/components/github-activity";
 
 function HabitsPage() {
   return (
@@ -118,6 +120,29 @@ function CommandsPage() {
   );
 }
 
+function NotesPage() {
+  return (
+    <main className="min-h-screen bg-background">
+      <Navigation />
+      <div className="pt-24 pb-28 md:pb-12">
+        <NotesManager />
+      </div>
+    </main>
+  );
+}
+
+
+function StandupGeneratorPage() {
+  return (
+    <main className="min-h-screen bg-background">
+      <Navigation />
+      <div className="pt-24 pb-28 md:pb-12">
+        <StandupGenerator />
+      </div>
+    </main>
+  );
+}
+
 function Router() {
   return (
     <Switch>
@@ -129,7 +154,8 @@ function Router() {
       <Route path="/habits" component={HabitsPage} />
       <Route path="/skills" component={SkillsPage} />
       <Route path="/commands" component={CommandsPage} />
-      <Route path="/dev/standup" component={CommandsPage} />
+      <Route path="/notes" component={NotesPage} />
+      <Route path="/dev/standup" component={StandupGeneratorPage} />
       <Route path="/settings" component={SettingsPage} />
       <Route path="/sync-test" component={SyncTestPage} />
       <Route component={NotFound} />
@@ -153,13 +179,15 @@ function App() {
                 <HabitsProvider>
                   <PromptsProvider>
                     <CommandsProvider>
-                      <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-                        <Router />
-                      </WouterRouter>
-                      <Toaster />
-                      <SonnerToaster richColors closeButton />
-                      <CommandPalette />
-                      <ShortcutsHelp />
+                      <NotesProvider>
+                        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+                          <Router />
+                        </WouterRouter>
+                        <Toaster />
+                        <SonnerToaster richColors closeButton />
+                        <CommandPalette />
+                        <ShortcutsHelp />
+                      </NotesProvider>
                     </CommandsProvider>
                   </PromptsProvider>
                 </HabitsProvider>

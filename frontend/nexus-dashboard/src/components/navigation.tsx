@@ -73,7 +73,7 @@ export function Navigation() {
       { href: "/assistant", label: "AI Assistant",  mobileLabel: "AI",       icon: MessageSquare },
       { href: "/habits",    label: "Habits",        mobileLabel: "Habits",   icon: LayoutGrid },
       { href: "/skills",    label: "Skills",        mobileLabel: "Skills",   icon: Sprout },
-      { href: "/commands",  label: "Notes",         mobileLabel: "Notes",    icon: Terminal }, // To be replaced by Notes
+      { href: "/notes",     label: "Notes",         mobileLabel: "Notes",    icon: Terminal },
       { href: "/settings",  label: "Settings",      mobileLabel: "Settings", icon: Settings },
     ]
   }, [mode]);
