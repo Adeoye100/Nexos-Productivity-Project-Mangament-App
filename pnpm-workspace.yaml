@@ -162,4 +162,4 @@ overrides:
 
 allowBuilds:
   esbuild: true
-  workerd: set this to true or false
+  workerd: false
